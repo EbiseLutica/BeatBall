@@ -1,0 +1,27 @@
+lang.version : 1.0
+lang.name : English
+lang.localizer : Xeltica
+
+difficulty.beginner : BEGINNER
+difficulty.amateur : AMATEUR
+difficulty.pro : PRO
+difficulty.legend : LEGEND
+judge.great : Great
+judge.good : Good
+judge.ok : Ok
+judge.bad : Bad
+
+result.clear : CLEAR
+result.failed : FAILED
+judge.combo : Combo
+judge.fullcombo : Full Combo
+judge.perfect : Perfect
+
+note.kick : Kick
+note.dribble : Dribble
+note.knock : Knock
+note.toss : Toss
+
+message.tap : Tap To Start
+message.press : Press {0} To Start
+selector.designer : CHART DESIGNER

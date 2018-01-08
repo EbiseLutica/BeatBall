@@ -1,0 +1,27 @@
+lang.version : 1.0
+lang.name : 日本語
+lang.localizer : Xeltica
+
+difficulty.beginner : ビギナー
+difficulty.amateur : アマチュア
+difficulty.pro : プロ
+difficulty.legend : レジェンド
+judge.great : Great
+judge.good : Good
+judge.ok : Ok
+judge.bad : Bad
+
+result.clear : CLEAR
+result.failed : FAILED
+judge.combo : コンボ
+judge.fullcombo : フルコンボ
+judge.perfect : パーフェクト
+
+note.kick : キック
+note.dribble : ドリブル
+note.knock : ノック
+note.toss : トス
+
+message.tap : タップしてはじめる
+message.press : {0} を押してはじめる
+selector.designer : 譜面デザイナー
