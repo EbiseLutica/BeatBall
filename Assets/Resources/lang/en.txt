@@ -25,3 +25,16 @@ note.toss : Toss
 message.tap : Tap To Start
 message.press : Press {0} To Start
 selector.designer : CHART DESIGNER
+
+menu.pref : Preferences
+menu.pref.osl : Open Source License
+menu.pref.help : Help
+menu.pref.help.text : <b>What's Beat Ball?</b>¥
+Beat Ball is a music game which uses sports (especially ball games) as a motif.¥
+¥
+I'm writing it in progress now.
+
+menu.pref.version : Version
+menu.pref.version.format : Beat Ball ver{0} ¥
+{1}¥
+Please also check Open Source License at the menu.

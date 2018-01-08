@@ -46,10 +46,34 @@ namespace Xeltica.BeatBall
 		private Dictionary<string, string> ParseLangFile(string text)
 		{
 			var dict = new Dictionary<string, string>();
+
+			// 改行時のキー保存場所
+			var keyTemp = "";
+
+			// 改行処理フラグ
+			var brFlag = false;
 			foreach (var kv in ToLFString(text).Split('\n'))
 			{
-				// 空行やおかしい行は飛ばす
-				if (string.IsNullOrWhiteSpace(kv) || !kv.Contains(':'))
+				// 空行を飛ばす
+				if (string.IsNullOrWhiteSpace(kv))
+					continue;
+
+				if (brFlag)
+				{
+					dict[keyTemp] += '\n';
+					var v = kv;
+					brFlag = false;
+					// ¥ か \ が含まれていれば改行フラグ
+					if (EndWithEscape(v))
+					{
+						v = v.Remove(kv.Length - 1);
+						brFlag = true;
+					}
+					dict[keyTemp] += v;
+				}
+
+				// 構文がおかしいやつは飛ばす
+				if (!kv.Contains(':'))
 					continue;
 
 				var split = kv.Split(':');
@@ -58,18 +82,32 @@ namespace Xeltica.BeatBall
 				if (split.Length < 2)
 					continue;
 
+				var key = split[0].Trim();
+				var value = string.Concat(split.Skip(1));
+
+				// ¥ か \ が含まれていれば改行フラグ
+				if (EndWithEscape(value))
+				{
+					value = value.Remove(value.Length - 1);
+					brFlag = true;
+					keyTemp = key;
+				}
 				// 辞書にぶちこむ(2つ目の:を考慮する)
-				dict[split[0].Trim()] = string.Concat(split.Skip(1));
+				dict[key] = value;
+
 			}
 
 			return dict;
 		}
+
+		static bool EndWithEscape(string str) => str.Length > 0 && "\\¥".Contains(str.Last());
+
 		/// <summary>
 		/// 改行コードを統一した文字列に変換します．
 		/// </summary>
 		/// <returns>改行コードをLine Feedに統一した文字列．</returns>
 		/// <param name="str">変換すべき文字列．</param>
-		private string ToLFString(string str) => str.Replace("\r\n", "\n").Replace('\r', '\n');
+		static string ToLFString(string str) => str.Replace("\r\n", "\n").Replace('\r', '\n');
 	}
 
 }

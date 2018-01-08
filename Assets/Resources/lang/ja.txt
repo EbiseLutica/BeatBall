@@ -25,3 +25,16 @@ note.toss : トス
 message.tap : タップしてはじめる
 message.press : {0} を押してはじめる
 selector.designer : 譜面デザイナー
+
+menu.pref : 環境設定
+menu.pref.osl : 権利表記
+menu.pref.help : ヘルプ
+menu.pref.help.text : <b>Beat Ball とは？</b> ¥
+Beat Ballは，スポーツ(特に球技)をモチーフとした音楽ゲームです．¥
+¥
+まだ書いている途中です．
+
+menu.pref.version : バージョン
+menu.pref.version.format : Beat Ball ver{0} ¥
+{1}¥
+オープンソースソフトウェアの権利表記もメニューにてご確認ください．
