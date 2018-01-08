@@ -4,7 +4,7 @@ timeCreated: 1515245401
 licenseType: Free
 SketchUpImporter:
   generateBackFace: 0
-  mergeCoplanarFaces: 0
+  mergeCoplanarFaces: 1
   selectedNodes: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f000000100000001100000012000000130000001400000015000000160000001700000018000000190000001a0000001b0000001c0000001d0000001e0000001f000000200000002100000022000000230000002400000025000000260000002700000028000000290000002a0000002b0000002c0000002d0000002e0000002f000000300000003100000032000000330000003400000035000000360000003700000038000000390000003a0000003b0000003c0000003d0000003e0000003f000000400000004100000042000000
   assetHash:
     serializedVersion: 2
@@ -15,8 +15,8 @@ SketchUpImporter:
   fileUnit: 0
   sketchUpImportData:
     defaultCamera:
-      position: {x: -1.6524769, y: 0.87288755, z: 0.4305917}
-      lookAt: {x: -0.34871146, y: 0.5358027, z: 0.028390272}
+      position: {x: -1.4505075, y: 0.7662013, z: 0.3779638}
+      lookAt: {x: -0.3060912, y: 0.4703157, z: 0.02492035}
       up: {x: 0.22918904, y: 0.9708108, z: -0.07070302}
       fov: 49.226894
       aspectRatio: 0
@@ -231,8 +231,8 @@ SketchUpImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 0.00254
-    meshCompression: 0
+    globalScale: 0.0020319999
+    meshCompression: 3
     addColliders: 0
     importVisibility: 1
     importBlendShapes: 1
@@ -248,7 +248,7 @@ SketchUpImporter:
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
     secondaryUVPackMargin: 4
-    useFileScale: 1
+    useFileScale: 0
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0

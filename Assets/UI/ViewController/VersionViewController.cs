@@ -1,10 +1,13 @@
 ﻿namespace Xeltica.BeatBall
 {
-	public abstract class VersionViewController : TextViewBaseController
+	/// <summary>
+	/// バージョン表示のビューです．
+	/// </summary>
+	public class VersionViewController : TextViewBaseController
 	{
 		private void Start()
 		{
-			Text = string.Format(I18n["menu.pref.version"], Constants.BBVersion, Constants.Copyright);
+			Text = string.Format(I18n["menu.pref.version.format"], Constants.BBVersion, Constants.Copyright);
 		}
 	}
 

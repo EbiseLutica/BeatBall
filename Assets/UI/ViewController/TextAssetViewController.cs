@@ -5,7 +5,7 @@ namespace Xeltica.BeatBall
 	/// <summary>
 	/// テキストアセットを表示するビューコントローラーです
 	/// </summary>
-	public class TextAssetViewController : TextViewController
+	public class TextAssetViewController : TextViewBaseController
 	{
 		[SerializeField]
 		private TextAsset textAsset;
