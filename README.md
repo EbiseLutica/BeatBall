@@ -4,7 +4,7 @@ Beat Ball は，スポーツを題材にした音楽ゲームです．
 
 使い方
 ------------
-1. `$ git clone https://github.com/Xeltica/BeatBall`
+1. `$ git clone https://github.com/citringo/BeatBall`
 2. Unityで開く
 
 (私の)開発環境
