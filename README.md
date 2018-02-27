@@ -11,7 +11,7 @@ Beat Ball は，スポーツを題材にした音楽ゲームです．
 ------------
 - Macbook Air 11 inch, Mid 2012
 - macOS 10.13.2 High Sierra
-- Unity 2017.2.1f1
+- Unity 2017.3.0
 - Visual Studio 2017 for Mac (Tools for Unity)
 - git 2.15.1
 
