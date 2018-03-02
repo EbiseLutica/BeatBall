@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace Xeltica.BeatBall
 {
 
-	public class ScoreBoardController : BaseBehaviour
+	public class ScoreBoardController : Singleton<ScoreBoardController>
 	{
 		[SerializeField]
 		private new string name;
@@ -19,9 +19,9 @@ namespace Xeltica.BeatBall
 		public Difficulty Difficulty { get; set; }
 
 		[SerializeField]
-		private int level;
+		private Level level;
 
-		public int Level
+		public Level Level
 		{
 			get { return level; }
 			set { level = value; }

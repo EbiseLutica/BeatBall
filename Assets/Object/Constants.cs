@@ -12,7 +12,7 @@ namespace Xeltica.BeatBall
 		/// <summary>
 		/// BeatBall のバージョンです．
 		/// </summary>
-		public static readonly Version BBVersion = new Version("1.0.0");
+		public static readonly System.Version BBVersion = new System.Version("1.0.0");
 
 		/// <summary>
 		/// 理論値．
