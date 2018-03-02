@@ -98,7 +98,7 @@ namespace Xeltica.BeatBall
 			rect.anchoredPosition = Vector2.Lerp(rect.anchoredPosition, new Vector2(x, rect.anchoredPosition.y), speed * Time.deltaTime);
 
 			// ActionBar Button の制御
-			backButton.text = viewStack.Count > 0 ? "＜" : "×";
+			backButton.text = viewStack.Count > 0 ? "←" : "×";
 
 			// ESC キー や Android の戻るキー対応
 			if (Input.GetKeyDown(KeyCode.Escape))

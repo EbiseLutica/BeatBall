@@ -84,7 +84,7 @@ namespace Xeltica.BeatBall
 		/// </summary>
 		void Start()
 		{
-			Difficulty = new Difficulty(new Color(.7f, 0, 1), "difficulty.legend");
+			Difficulty = Difficulty.Legend;
 		}
 
 		/// <summary>
@@ -104,7 +104,7 @@ namespace Xeltica.BeatBall
 			titleText.text = name ?? "No Title";
 
 			// 難易度表記
-			difficulty.text = $"<i>{Difficulty.Name}</i>  <b>{Level}</b>";
+			difficulty.text = $"{Difficulty.Name}  Lv.{Level}";
 			difficulty.color = Difficulty.AccentColor;
 
 			// 判定
