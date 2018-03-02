@@ -6,6 +6,7 @@ difficulty.beginner : BEGINNER
 difficulty.amateur : AMATEUR
 difficulty.pro : PRO
 difficulty.legend : LEGEND
+
 judge.great : Great
 judge.good : Good
 judge.ok : Ok
@@ -20,10 +21,12 @@ judge.perfect : Perfect
 note.kick : Kick
 note.dribble : Dribble
 note.knock : Knock
-note.toss : Toss
+note.toss : Volley
+note.puck : Puck
 
 message.tap : Tap To Start
 message.press : Press {0} To Start
+message.localizer: Localizer
 selector.designer : CHART DESIGNER
 
 menu.pref : Preferences

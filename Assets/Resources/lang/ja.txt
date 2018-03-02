@@ -2,10 +2,10 @@ lang.version : 1.0
 lang.name : 日本語
 lang.localizer : Xeltica
 
-difficulty.beginner : ビギナー
-difficulty.amateur : アマチュア
-difficulty.pro : プロ
-difficulty.legend : レジェンド
+difficulty.beginner : BEGINNER
+difficulty.amateur : AMATEUR
+difficulty.pro : PRO
+difficulty.legend : LEGEND
 judge.great : Great
 judge.good : Good
 judge.ok : Ok
@@ -20,10 +20,12 @@ judge.perfect : パーフェクト
 note.kick : キック
 note.dribble : ドリブル
 note.knock : ノック
-note.toss : トス
+note.toss : バレー
+note.puck : パック
 
 message.tap : タップしてはじめる
 message.press : {0} を押してはじめる
+message.localizer: 訳者
 selector.designer : 譜面デザイナー
 
 menu.pref : 環境設定
