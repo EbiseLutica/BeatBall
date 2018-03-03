@@ -234,6 +234,7 @@ namespace Xeltica.BeatBall
 				float offset;
 				if (!float.TryParse(v, out offset))
 					throw new ChartErrorException("offset 値に数値でない値が指定されました", l);
+				Offset = offset;
 			});
 		}
 
