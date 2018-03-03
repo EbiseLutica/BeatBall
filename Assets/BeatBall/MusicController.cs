@@ -12,19 +12,13 @@ namespace Xeltica.BeatBall
 	[RequireComponent(typeof(Music))]
 	public class MusicController : Singleton<MusicController>
 	{
-
 		[SerializeField]
 		string chartPath;
 
 		Chart currentChart;
 		AudioSource aud;
 		Music mus;
-
 		string rootPathOfChart;
-		int measure;
-		float prevTime;
-		float timer;
-		BeatMapItem currentBeatMapItem;
 
 		// Use this for initialization
 		IEnumerator Start()
@@ -58,8 +52,6 @@ namespace Xeltica.BeatBall
 			board.Difficulty = currentChart.Difficulty;
 			board.Name = currentChart.Title;
 			board.Level = currentChart.Level;
-
-			timer = currentBeatMapItem.BeatTime;
 
 			Beat beat = currentChart.Beat;
 			float tempo = currentChart.Bpm;
@@ -107,7 +99,6 @@ namespace Xeltica.BeatBall
 				return;
 			if (Music.IsJustChangedBeat())
 				NotesFX.Instance.Kick();
-
 		}
 
 	}
