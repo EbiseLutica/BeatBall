@@ -3,10 +3,10 @@
 	/// <summary>
 	/// 全てのロングノーツのベースクラスです．
 	/// </summary>
-	public abstract class LongNoteBase : NoteBase
+	public abstract class LongNoteBase<T> : NoteBase where T : LongNoteBase<T>
 	{
-		public Dribble Next { get; set; }
-		public Dribble Previous { get; set; }
+		public T Next { get; set; }
+		public T Previous { get; set; }
 
 		public bool IsFirstNote => Previous == null;
 		public bool IsLastNote => Next == null;
