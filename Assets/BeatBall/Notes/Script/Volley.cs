@@ -5,7 +5,7 @@
 	/// </summary>
 	public class Volley : LongNoteBase
 	{
-		protected Volley(int tick) : base(tick) { }
+		protected Volley(int measure, int tick) : base(measure, tick) { }
 		public override NoteType Type => NoteType.Volley;
 	}
 }

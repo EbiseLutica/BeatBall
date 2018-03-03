@@ -5,12 +5,13 @@ namespace Xeltica.BeatBall
 	/// </summary>
 	public abstract class NoteBase
 	{
+		public int Measure { get; set; }
 		public int Tick { get; set; }
 
 		public abstract NoteType Type { get; }
 		public int Lane { get; set; }
 
-		protected NoteBase(int tick)
+		protected NoteBase(int measure, int tick)
 		{
 			Tick = tick;
 		}

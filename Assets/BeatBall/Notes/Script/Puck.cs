@@ -6,6 +6,6 @@
 	public class Puck : NoteBase
 	{
 		public override NoteType Type => NoteType.Kick;
-		protected Puck(int tick) : base(tick) { }
+		protected Puck(int measure, int tick) : base(measure, tick) { }
 	}
 }
