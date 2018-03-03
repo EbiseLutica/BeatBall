@@ -15,8 +15,8 @@ SketchUpImporter:
   fileUnit: 0
   sketchUpImportData:
     defaultCamera:
-      position: {x: -1.4505075, y: 0.7662013, z: 0.3779638}
-      lookAt: {x: -0.3060912, y: 0.4703157, z: 0.02492035}
+      position: {x: -14.688683, y: 7.759, z: 3.8274815}
+      lookAt: {x: -3.0996573, y: 4.7626905, z: 0.25235796}
       up: {x: 0.22918904, y: 0.9708108, z: -0.07070302}
       fov: 49.226894
       aspectRatio: 0
@@ -202,6 +202,16 @@ SketchUpImporter:
       assembly: UnityEngine.CoreModule
       name: Color_009
     second: {fileID: 2100000, guid: 5e08ed245a8154f5289ba61d3bf4a8f0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: '[Color_000]'
+    second: {fileID: 2100000, guid: 6360e08faaf5b4bd699dc55247ace637, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: '[Color_009]'
+    second: {fileID: 2100000, guid: 831d40ab68a91411aaf696e5a0438813, type: 2}
   materials:
     importMaterials: 1
     materialName: 2
@@ -244,6 +254,8 @@ SketchUpImporter:
     optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
