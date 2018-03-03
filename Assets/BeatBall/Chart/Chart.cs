@@ -16,7 +16,7 @@ namespace Xeltica.BeatBall
 		public string Title { get; private set; }
 		public string Artist { get; private set; }
 		public string Designer { get; private set; }
-		public double Bpm { get; private set; }
+		public float Bpm { get; private set; }
 		public Beat Beat { get; private set; }
 		public Difficulty Difficulty { get; private set; }
 		public Level Level { get; private set; }
