@@ -5,6 +5,6 @@
 	/// </summary>
 	public enum NoteType
 	{
-		Kick, Dribble, Knock, Volley, Puck
+		Kick, Dribble, Knock, Volley, Puck, Rotate, Vibrate
 	}
 }
