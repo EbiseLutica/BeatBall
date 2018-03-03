@@ -6,6 +6,6 @@
 	public class Dribble : LongNoteBase
 	{
 		public override NoteType Type => NoteType.Dribble;
-		protected Dribble(int measure, int tick) : base(measure, tick) { }
+		public Dribble(int measure, int tick) : base(measure, tick) { }
 	}
 }
