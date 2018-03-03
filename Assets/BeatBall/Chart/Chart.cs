@@ -24,6 +24,8 @@ namespace Xeltica.BeatBall
 		public List<NoteBase> Notes { get; private set; }
 		public AudioClip Song { get; set; }
 		public string SongFile { get; private set; }
+		public List<EventBase> Events { get; private set; }
+
 
 		public static readonly Version SupportedVersion = new Version(1, 0);
 
@@ -141,6 +143,9 @@ namespace Xeltica.BeatBall
 
 		Chart() 
 		{
+			Notes = new List<NoteBase>();
+			Events = new List<EventBase>();
+
 			Add("version", (v, l) =>
 			{
 				var versions = v.Split('.');
