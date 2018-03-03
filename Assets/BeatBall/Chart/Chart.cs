@@ -31,6 +31,9 @@ namespace Xeltica.BeatBall
 
 		readonly CommandDictionary commands = new CommandDictionary();
 
+		readonly Dribble[] dribbleLayers = new Dribble[10];
+		readonly Volley[] volleyLayers = new Volley[10];
+
 		void Add(string key, CommandCallBack callBack)
 		{
 			commands.Add(key, callBack);
@@ -47,6 +50,7 @@ namespace Xeltica.BeatBall
 		{
 			string chunk = null;
 			int i = 0;
+
 			foreach (var line in lines)
 			{
 				i++;
@@ -119,7 +123,6 @@ namespace Xeltica.BeatBall
 		void ProcessNotes(string statement, int lineNumber, ref string chunkName)
 		{
 			var match = chartRegexp.Match(statement);
-			// todo まともな実装する
 			if (match.Success)
 			{
 				//ノーツ定義
@@ -128,8 +131,94 @@ namespace Xeltica.BeatBall
 				var data = match.Groups[3].Value.ToLower().Replace("  ", "00");
 				if (data.Length % 2 != 0)
 					throw new ChartErrorException("データ列が不正です．", lineNumber);
-				
-				Debug.Log($"{lineNumber}: 小節:{measure} レーン:{'A' + (char)lane} データ列:{data}");
+				int tick = 0;
+				for (int i = 0; i < data.Length; i += 2)
+				{
+					var note = data[i];
+					int layer = data[i + 1] - '0';
+
+					switch (note)
+					{
+						case '1':
+							Notes.Add(new Kick(measure, tick));
+							break;
+						case '2':
+							Notes.Add(new Knock(measure, tick));
+							break;
+						case '3':
+							{
+								Dribble d;
+								Notes.Add(d = new Dribble(measure, tick));
+								dribbleLayers[layer] = d;
+							}
+							break;
+						case '4':
+							{
+								Dribble d;
+								if (dribbleLayers[layer] == null)
+									throw new ChartErrorException("Dribble が非対応です", lineNumber);
+								Notes.Add(d = new Dribble(measure, tick));
+								d.Previous = dribbleLayers[layer];
+								dribbleLayers[layer].Next = d;
+								dribbleLayers[layer] = d;
+							}
+							break;
+						case '5':
+							{
+								Dribble d;
+								if (dribbleLayers[layer] == null)
+									throw new ChartErrorException("Dribble が非対応です", lineNumber);
+								Notes.Add(d = new Dribble(measure, tick));
+								d.Previous = dribbleLayers[layer];
+								dribbleLayers[layer].Next = d;
+								dribbleLayers[layer] = null;
+							}
+							break;
+						case '6':
+							{
+								Volley v;
+								Notes.Add(v = new Volley(measure, tick));
+								volleyLayers[layer] = v;
+							}
+							break;
+						case '7':
+							{
+								Volley v;
+								if (dribbleLayers[layer] == null)
+									throw new ChartErrorException("Volley が非対応です", lineNumber);
+								Notes.Add(v = new Volley(measure, tick));
+								v.Previous = volleyLayers[layer];
+								volleyLayers[layer].Next = v;
+								volleyLayers[layer] = v;
+							}
+							break;
+						case '8':
+							{
+								Volley v;
+								if (dribbleLayers[layer] == null)
+									throw new ChartErrorException("Volley が非対応です", lineNumber);
+								Notes.Add(v = new Volley(measure, tick));
+								v.Previous = volleyLayers[layer];
+								volleyLayers[layer].Next = v;
+								volleyLayers[layer] = null;
+							}
+							break;
+						case '9':
+							Notes.Add(new Puck(measure, tick));
+							break;
+						case 'a':
+						case 'b':
+							Notes.Add(new RotateNote(measure, tick, note == 'a' ? Direction.Left : Direction.Right, layer));
+							break;
+						case 'c':
+						case 'd':
+							Notes.Add(new VibrateNote(measure, tick, note == 'c' ? Orientation.Horizontal : Orientation.Vertical, layer));
+							break;
+					}
+					if (layer < 0 || 9 < layer)
+						throw new ChartErrorException("レイヤー番号が不正です．", lineNumber);
+					tick += (int)(192 / (data.Length / 2f));
+				}
 			}
 			else if ((match = cmdRegexp.Match(statement)).Success)
 			{
