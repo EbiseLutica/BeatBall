@@ -27,7 +27,7 @@ namespace Xeltica.BeatBall
 
 			rootPathOfChart = Path.Combine(Environment.CurrentDirectory, "charts");
 			var chart = Path.Combine(rootPathOfChart, chartPath);
-			    
+
 			try
 			{
 				currentChart = Chart.Parse(File.ReadAllText(chart));
