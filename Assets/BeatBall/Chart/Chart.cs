@@ -51,6 +51,8 @@ namespace Xeltica.BeatBall
 			string chunk = null;
 			int i = 0;
 
+			var measures = new List<MeasureTemp>();
+
 			foreach (var line in lines)
 			{
 				i++;
@@ -76,7 +78,7 @@ namespace Xeltica.BeatBall
 				switch (chunk)
 				{
 					case "notes":
-						ProcessNotes(l, i, ref chunk);
+						ProcessNotes(l, i, ref chunk, measures);
 						break;
 
 					case null:
@@ -88,6 +90,118 @@ namespace Xeltica.BeatBall
 						throw new ChartErrorException($"不正なチャンク {chunk} です．", i);
 				}
 			}
+
+			// ノーツを逐次解析する
+
+			int measure = 0;
+
+			List<NoteTemp> noteTemps = new List<NoteTemp>();
+
+			while (measures.Count > 0)
+			{
+				var measureTemp = measures.Where(n => n.Measure == measure).ToList();
+
+				for (i = 0; i < 192; i++)
+				{
+					noteTemps.Clear();
+					// 現在tickまでのノーツを取得
+					foreach (var tmp in measureTemp)
+					{
+						while (tmp.Notes.Count > 0 && tmp.Notes.Peek().Tick <= i)
+						{
+							noteTemps.Add(tmp.Notes.Dequeue());
+						}
+					}
+
+					foreach (var tmp in noteTemps)
+					{
+						switch (tmp.Note)
+						{
+							case '1':
+								Notes.Add(new Kick(measure, tmp.Tick, tmp.Lane));
+								break;
+							case '2':
+								Notes.Add(new Knock(measure, tmp.Tick, tmp.Lane));
+								break;
+							case '3':
+								{
+									Dribble d;
+									Notes.Add(d = new Dribble(measure, tmp.Tick, tmp.Lane));
+									dribbleLayers[tmp.Layer] = d;
+								}
+								break;
+							case '4':
+								{
+									Dribble d;
+									if (dribbleLayers[tmp.Layer] == null)
+										throw new ChartErrorException($"Dribble が非対応です {tmp.Layer}", tmp.LineNumber);
+									Notes.Add(d = new Dribble(measure, tmp.Tick, tmp.Lane));
+									d.Previous = dribbleLayers[tmp.Layer];
+									dribbleLayers[tmp.Layer].Next = d;
+									dribbleLayers[tmp.Layer] = d;
+								}
+								break;
+							case '5':
+								{
+									Dribble d;
+									if (dribbleLayers[tmp.Layer] == null)
+										throw new ChartErrorException($"Dribble が非対応です {tmp.Layer}", tmp.LineNumber);
+									Notes.Add(d = new Dribble(measure, tmp.Tick, tmp.Lane));
+									d.Previous = dribbleLayers[tmp.Layer];
+									dribbleLayers[tmp.Layer].Next = d;
+									dribbleLayers[tmp.Layer] = null;
+								}
+								break;
+							case '6':
+								{
+									Volley v;
+									Notes.Add(v = new Volley(measure, tmp.Tick, tmp.Lane));
+									volleyLayers[tmp.Layer] = v;
+								}
+								break;
+							case '7':
+								{
+									Volley v;
+									if (volleyLayers[tmp.Layer] == null)
+										throw new ChartErrorException($"Volley が非対応です {tmp.Layer}", tmp.LineNumber);
+									Notes.Add(v = new Volley(measure, tmp.Tick, tmp.Lane));
+									v.Previous = volleyLayers[tmp.Layer];
+									volleyLayers[tmp.Layer].Next = v;
+									volleyLayers[tmp.Layer] = v;
+								}
+								break;
+							case '8':
+								{
+									Volley v;
+									if (volleyLayers[tmp.Layer] == null)
+										throw new ChartErrorException($"Volley が非対応です {tmp.Layer}", tmp.LineNumber);
+									Notes.Add(v = new Volley(measure, tmp.Tick, tmp.Lane));
+									v.Previous = volleyLayers[tmp.Layer];
+									volleyLayers[tmp.Layer].Next = v;
+									volleyLayers[tmp.Layer] = null;
+								}
+								break;
+							case '9':
+								Notes.Add(new Puck(measure, tmp.Tick, tmp.Lane));
+								break;
+							case 'a':
+							case 'b':
+								Notes.Add(new RotateNote(measure, tmp.Tick, tmp.Lane, tmp.Note == 'a' ? Direction.Left : Direction.Right, tmp.Layer));
+								break;
+							case 'c':
+							case 'd':
+								Notes.Add(new VibrateNote(measure, tmp.Tick, tmp.Lane, tmp.Note == 'c' ? Orientation.Horizontal : Orientation.Vertical, tmp.Layer));
+								break;
+						}
+					}
+
+				}
+
+				foreach (var tmp in measureTemp)
+					measures.Remove(tmp);
+				measure++;
+			}
+
 		}
 
 		static readonly Regex cmdRegexp = new Regex(@"^#([\w\d_-]+) ?(.*)$");
@@ -119,111 +233,85 @@ namespace Xeltica.BeatBall
 			}
 		}
 
-		static readonly Regex chartRegexp = new Regex(@"^(\d{3})([a-dA-Z]): ?(.+)$");
-		void ProcessNotes(string statement, int lineNumber, ref string chunkName)
+		struct MeasureTemp
+		{
+			public Queue<NoteTemp> Notes;
+			public int Lane;
+			public int Measure;
+		}
+
+		struct NoteTemp
+		{
+			public char Note;
+			public int Layer;
+			public int Tick;
+			public int LineNumber;
+			public int Lane;
+		}
+
+
+		static readonly Regex chartRegexp = new Regex(@"^(\d{3})([a-dA-Z]): (.+)$");
+		void ProcessNotes(string statement, int lineNumber, ref string chunkName, List<MeasureTemp> notes)
 		{
 			var match = chartRegexp.Match(statement);
 			if (match.Success)
 			{
 				//ノーツ定義
 				var measure = int.Parse(match.Groups[1].Value);
-				var lane = 'a' - match.Groups[2].Value.ToLower()[0];
+				var lane = match.Groups[2].Value.ToLower()[0] - 'a';
 				var data = match.Groups[3].Value.ToLower().Replace("  ", "00");
 				if (data.Length % 2 != 0)
 					throw new ChartErrorException("データ列が不正です．", lineNumber);
-				int tick = 0;
+
+				var queue = new Queue<NoteTemp>();
+
+				var tick = 0;
 				for (int i = 0; i < data.Length; i += 2)
 				{
-					var note = data[i];
-					int layer = data[i + 1] - '0';
-
-					switch (note)
-					{
-						case '1':
-							Notes.Add(new Kick(measure, tick));
-							break;
-						case '2':
-							Notes.Add(new Knock(measure, tick));
-							break;
-						case '3':
-							{
-								Dribble d;
-								Notes.Add(d = new Dribble(measure, tick));
-								dribbleLayers[layer] = d;
-							}
-							break;
-						case '4':
-							{
-								Dribble d;
-								if (dribbleLayers[layer] == null)
-									throw new ChartErrorException("Dribble が非対応です", lineNumber);
-								Notes.Add(d = new Dribble(measure, tick));
-								d.Previous = dribbleLayers[layer];
-								dribbleLayers[layer].Next = d;
-								dribbleLayers[layer] = d;
-							}
-							break;
-						case '5':
-							{
-								Dribble d;
-								if (dribbleLayers[layer] == null)
-									throw new ChartErrorException("Dribble が非対応です", lineNumber);
-								Notes.Add(d = new Dribble(measure, tick));
-								d.Previous = dribbleLayers[layer];
-								dribbleLayers[layer].Next = d;
-								dribbleLayers[layer] = null;
-							}
-							break;
-						case '6':
-							{
-								Volley v;
-								Notes.Add(v = new Volley(measure, tick));
-								volleyLayers[layer] = v;
-							}
-							break;
-						case '7':
-							{
-								Volley v;
-								if (dribbleLayers[layer] == null)
-									throw new ChartErrorException("Volley が非対応です", lineNumber);
-								Notes.Add(v = new Volley(measure, tick));
-								v.Previous = volleyLayers[layer];
-								volleyLayers[layer].Next = v;
-								volleyLayers[layer] = v;
-							}
-							break;
-						case '8':
-							{
-								Volley v;
-								if (dribbleLayers[layer] == null)
-									throw new ChartErrorException("Volley が非対応です", lineNumber);
-								Notes.Add(v = new Volley(measure, tick));
-								v.Previous = volleyLayers[layer];
-								volleyLayers[layer].Next = v;
-								volleyLayers[layer] = null;
-							}
-							break;
-						case '9':
-							Notes.Add(new Puck(measure, tick));
-							break;
-						case 'a':
-						case 'b':
-							Notes.Add(new RotateNote(measure, tick, note == 'a' ? Direction.Left : Direction.Right, layer));
-							break;
-						case 'c':
-						case 'd':
-							Notes.Add(new VibrateNote(measure, tick, note == 'c' ? Orientation.Horizontal : Orientation.Vertical, layer));
-							break;
-					}
-					if (layer < 0 || 9 < layer)
+					var note = new NoteTemp();
+					note.LineNumber = lineNumber;
+					note.Note = data[i];
+					note.Layer = data[i + 1] - '0';
+					if (note.Layer < 0 || 9 < note.Layer)
 						throw new ChartErrorException("レイヤー番号が不正です．", lineNumber);
+
+					note.Tick = tick;
+					note.Lane = lane;
+					queue.Enqueue(note);
 					tick += (int)(192 / (data.Length / 2f));
 				}
+
+				notes.Add(new MeasureTemp
+				{
+					Lane = lane,
+					Measure = measure,
+					Notes = queue,
+				});
 			}
 			else if ((match = cmdRegexp.Match(statement)).Success)
 			{
 				//コマンド
 				Debug.Log($"{lineNumber}: コマンド Header:{match.Captures[1]} Value:{match.Captures[2]}");
+				var cmd = match.Groups[1].Value.ToLower();
+				var meas = 0;
+				if (cmd.StartsWith("bpm"))
+				{
+					cmd = cmd.Remove(0, 3);
+					if (!int.TryParse(cmd, out meas))
+						throw new ChartErrorException("ノーツ定義文が不正です", lineNumber);
+					Events.Add(new TempoEvent(meas, ParseBpm(match.Groups[2].Value, lineNumber)));
+				}
+				else if (cmd.StartsWith("beat"))
+				{
+					cmd = cmd.Remove(0, 4);
+					if (!int.TryParse(cmd, out meas))
+						throw new ChartErrorException("ノーツ定義文が不正です", lineNumber);
+					Events.Add(new BeatEvent(meas, ParseBeat(match.Groups[2].Value, lineNumber)));
+				}
+				else
+				{
+					Debug.LogWarning($"サポートされないコマンドです．無視されます．{lineNumber}");
+				}
 			}
 			else
 				throw new ChartErrorException("ノーツ定義でない不正な行です．", lineNumber);
@@ -262,32 +350,8 @@ namespace Xeltica.BeatBall
 			Add("title", (v, l) => Title = v);
 			Add("artist", (v, l) => Artist = v);
 			Add("designer", (v, l) => Designer = v);
-			Add("bpm", (v, l) =>
-			{
-				float bpm;
-				if (!float.TryParse(v, out bpm))
-					throw new ChartErrorException("数値でない値を BPM に設定しようとしました．", l);
-				Bpm = bpm;
-			});
-			Add("beat", (v, l) =>
-			{
-				var beats = v.Split('/');
-				if (beats.Length != 2)
-					throw new ChartErrorException("不正な拍子設定です．", l);
-				int rhythm, note;
-
-				if (!int.TryParse(beats[0], out rhythm))
-				{
-					throw new ChartErrorException("不正な拍子設定です．", l);
-				}
-
-				if (!int.TryParse(beats[1], out note))
-				{
-					throw new ChartErrorException("不正な拍子設定です．", l);
-				}
-
-				Beat = new Beat(rhythm, note);
-			});
+			Add("bpm", (v, l) => Bpm = ParseBpm(v, l));
+			Add("beat", (v, l) => Beat = ParseBeat(v, l));
 			Add("difficulty", (v, l) =>
 			{
 				switch (v.ToLower())
@@ -330,6 +394,34 @@ namespace Xeltica.BeatBall
 					throw new ChartErrorException("offset 値に数値でない値が指定されました", l);
 				Offset = offset;
 			});
+		}
+
+		public float ParseBpm(string v, int l)
+		{
+			float bpm;
+			if (!float.TryParse(v, out bpm))
+				throw new ChartErrorException("数値でない値を BPM に設定しようとしました．", l);
+			return bpm;
+		}
+
+		public Beat ParseBeat(string v, int l)
+		{
+			var beats = v.Split('/');
+			if (beats.Length != 2)
+				throw new ChartErrorException("不正な拍子設定です．", l);
+			int rhythm, note;
+
+			if (!int.TryParse(beats[0], out rhythm))
+			{
+				throw new ChartErrorException("不正な拍子設定です．", l);
+			}
+
+			if (!int.TryParse(beats[1], out note))
+			{
+				throw new ChartErrorException("不正な拍子設定です．", l);
+			}
+
+			return new Beat(rhythm, note);
 		}
 
 		public delegate void CommandCallBack(string value, int line);
