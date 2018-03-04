@@ -450,12 +450,12 @@ Prefab:
     - target: {fileID: 224462441837836394, guid: 3bb9201da88a24c1d86a8ce2c4d292f3,
         type: 2}
       propertyPath: m_AnchoredPosition.x
-      value: 0.000023117891
+      value: -0.0000070504843
       objectReference: {fileID: 0}
     - target: {fileID: 224462441837836394, guid: 3bb9201da88a24c1d86a8ce2c4d292f3,
         type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: -0.0000015481368
+      value: 0.000013216214
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 114614261768257842, guid: 3bb9201da88a24c1d86a8ce2c4d292f3, type: 2}
