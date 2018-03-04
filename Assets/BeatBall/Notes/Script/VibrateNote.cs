@@ -5,7 +5,7 @@
 	/// </summary>
 	public class VibrateNote : NoteBase
 	{
-		public VibrateNote(int measure, int tick, Orientation orientation, int power) : base(measure, tick)
+		public VibrateNote(int measure, int tick, int lane, Orientation orientation, int power) : base(measure, tick, lane)
 		{
 			Orientation = orientation;
 			Power = power;

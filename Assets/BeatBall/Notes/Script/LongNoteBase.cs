@@ -11,6 +11,6 @@
 		public bool IsFirstNote => Previous == null;
 		public bool IsLastNote => Next == null;
 
-		protected LongNoteBase(int measure, int tick) : base(measure, tick) { }
+		protected LongNoteBase(int measure, int tick, int lane) : base(measure, tick, lane) { }
 	}
 }

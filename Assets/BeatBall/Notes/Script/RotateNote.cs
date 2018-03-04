@@ -5,7 +5,7 @@
 	/// </summary>
 	public class RotateNote : NoteBase
 	{
-		public RotateNote(int measure, int tick, Direction dir, int speed) : base(measure, tick)
+		public RotateNote(int measure, int tick, int lane, Direction dir, int speed) : base(measure, tick, lane)
 		{
 			Direction = dir;
 			SpeedId = speed;

@@ -6,6 +6,6 @@
 	public class Kick : NoteBase
 	{
 		public override NoteType Type => NoteType.Kick;
-		public Kick(int measure, int tick) : base(measure, tick) { }
+		public Kick(int measure, int tick, int lane) : base(measure, tick, lane) { }
 	}
 }

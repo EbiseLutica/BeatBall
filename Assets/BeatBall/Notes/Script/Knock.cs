@@ -6,6 +6,6 @@
 	public class Knock : NoteBase
 	{
 		public override NoteType Type => NoteType.Puck;
-		public Knock(int measure, int tick) : base(measure, tick) { }
+		public Knock(int measure, int tick, int lane) : base(measure, tick, lane) { }
 	}
 }
