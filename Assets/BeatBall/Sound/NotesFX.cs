@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -29,6 +30,8 @@ namespace Xeltica.BeatBall
 		AudioClip spike;
 		[SerializeField]
 		AudioClip puck;
+		[SerializeField]
+		AudioClip metronome;
 
 		// Use this for initialization
 		void Start()
@@ -51,7 +54,7 @@ namespace Xeltica.BeatBall
 		public void Spike() => aud.PlayOneShot(spike);
 		public void Dribble() => aud.PlayOneShot(dribble);
 		public void Puck() => aud.PlayOneShot(puck);
-
+		public void Metronome() => aud.PlayOneShot(metronome);
 	}
 
 }
