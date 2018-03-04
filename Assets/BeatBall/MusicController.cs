@@ -73,9 +73,9 @@ namespace Xeltica.BeatBall
 			var song = currentChart.Song;
 			var buf = new float[song.samples - TimeToSample(currentChart.Offset, song.frequency, song.channels)];
 			song.GetData(buf, TimeToSample(currentChart.Offset, song.frequency, song.channels) / 2);
-
-			song = AudioClip.Create(song.name, buf.Length, song.channels, song.frequency, false);
-			song.SetData(buf, 0);
+			var newSongLength = buf.Length + TimeToSample(240 / currentChart.Bpm * ((float)currentChart.Beat.Rhythm / currentChart.Beat.Note));
+			song = AudioClip.Create(song.name, newSongLength, song.channels, song.frequency, false);
+			song.SetData(buf, newSongLength - buf.Length);
 			aud.clip = currentChart.Song = song;
 
 			yield return new WaitForSeconds(1);
