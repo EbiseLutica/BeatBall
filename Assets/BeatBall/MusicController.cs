@@ -258,6 +258,10 @@ namespace Xeltica.BeatBall
 	
 		float TickToTime(int tick, float bpm) => 60f / bpm / 4f / 12f * tick;
 
+		/// <summary>
+		/// 判定音用のフラグ．
+		/// </summary>
+		NoteFlag noteFlag;
 
 		void ProcessNotes()
 		{
@@ -268,6 +272,8 @@ namespace Xeltica.BeatBall
 			{
 				NotesFX.Instance.Metronome();
 			}
+
+			noteFlag = NoteFlag.None;
 
 			Beat beat = currentChart.Beat;
 			float bpm = currentChart.Bpm;
@@ -312,30 +318,54 @@ namespace Xeltica.BeatBall
 			switch (note.Type)
 			{
 				case NoteType.Kick:
+					if (!noteFlag.HasFlag(NoteFlag.Kick))
 					NotesFX.Instance.Kick();
+
+					noteFlag |= NoteFlag.Kick;
 					break;
 				case NoteType.Dribble:
-					NotesFX.Instance.Dribble();
 					var d = (Dribble)note;
+				
 					if (d.IsFirstNote)
 						NotesFX.Instance.DribbleStart();
 					if (d.IsLastNote)
 						NotesFX.Instance.DribbleStop();	
+
+					if (!noteFlag.HasFlag(NoteFlag.Dribble))
+						NotesFX.Instance.Dribble();
+
+					noteFlag |= NoteFlag.Dribble;
 					break;
 				case NoteType.Knock:
+					if (!noteFlag.HasFlag(NoteFlag.Knock))
 					NotesFX.Instance.Knock();
+
+					noteFlag |= NoteFlag.Knock;
 					break;
 				case NoteType.Volley:
 					var v = (Volley)note;
-					if (v.IsFirstNote)
+
+					if (v.IsFirstNote && !noteFlag.HasFlag(NoteFlag.Receive))
+					{
 						NotesFX.Instance.Receive();
-					else if (v.IsLastNote)
+						noteFlag |= NoteFlag.Receive;
+					}
+					else if (v.IsLastNote && !noteFlag.HasFlag(NoteFlag.Spike))
+					{
 						NotesFX.Instance.Spike();
-					else
+						noteFlag |= NoteFlag.Spike;
+					}
+					else if (!noteFlag.HasFlag(NoteFlag.Toss))
+					{
 						NotesFX.Instance.Toss();
+						noteFlag |= NoteFlag.Toss;
+					}
 					break;
 				case NoteType.Puck:
+					if (!noteFlag.HasFlag(NoteFlag.Puck))
 					NotesFX.Instance.Puck();
+
+					noteFlag |= NoteFlag.Puck;
 					break;
 				case NoteType.Rotate:
 					//todo 回転
@@ -348,5 +378,19 @@ namespace Xeltica.BeatBall
 			Destroy(tf.gameObject);
 		}
 
+		[Flags]
+		enum NoteFlag
+		{
+			None = 0,
+			Kick = 1,
+			Dribble = 2,
+			Knock = 4,
+			Receive = 8,
+			Spike = 16,
+			Toss = 32,
+			Puck = 64,
+		}
+
+	}
 	}
 }

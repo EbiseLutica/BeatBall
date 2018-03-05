@@ -12,7 +12,7 @@ namespace Xeltica.BeatBall
 	[RequireComponent(typeof(AudioSource))]
 	public class NotesFX : Singleton<NotesFX>
 	{
-		AudioSource aud;
+		AudioSource aud, aud2;
 
 		[Header("Clips")]
 		[SerializeField]
@@ -38,6 +38,7 @@ namespace Xeltica.BeatBall
 		void Start()
 		{
 			aud = GetComponent<AudioSource>();
+			aud2 = gameObject.AddComponent<AudioSource>();
 
 			// ループ再生が必要なので登録
 			aud.clip = dribbleLoop;
@@ -63,14 +64,14 @@ namespace Xeltica.BeatBall
 				aud.Stop();
 		}
 
-		public void Kick() => aud.PlayOneShot(kick);
-		public void Knock() => aud.PlayOneShot(knock);
-		public void Receive() => aud.PlayOneShot(receive);
-		public void Toss() => aud.PlayOneShot(toss);
-		public void Spike() => aud.PlayOneShot(spike);
-		public void Dribble() => aud.PlayOneShot(dribble);
-		public void Puck() => aud.PlayOneShot(puck);
-		public void Metronome() => aud.PlayOneShot(metronome);
+		public void Kick() => aud2.PlayOneShot(kick);
+		public void Knock() => aud2.PlayOneShot(knock);
+		public void Receive() => aud2.PlayOneShot(receive);
+		public void Toss() => aud2.PlayOneShot(toss);
+		public void Spike() => aud2.PlayOneShot(spike);
+		public void Dribble() => aud2.PlayOneShot(dribble);
+		public void Puck() => aud2.PlayOneShot(puck);
+		public void Metronome() => aud2.PlayOneShot(metronome);
 	}
 
 }
