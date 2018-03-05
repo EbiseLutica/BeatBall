@@ -136,7 +136,8 @@ namespace Xeltica.BeatBall
 			float scoreOfOk = scoreOfGood * Constants.OkRate;
 			float scoreOfBad = 0;
 
-			return (int)((great * scoreOfGreat) + (good * scoreOfGood) + (ok * scoreOfOk) + (bad * scoreOfBad));
+			return (int)((great * scoreOfGreat) + (good * scoreOfGood) + (ok * scoreOfOk) + (bad * scoreOfBad) + 0.5f);
 		}
 	}
+
 }
