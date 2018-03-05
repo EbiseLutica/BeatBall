@@ -16,6 +16,14 @@ namespace Xeltica.BeatBall
 			set { name = value; }
 		}
 
+		[SerializeField]
+		private string artist;
+		public string Artist
+		{
+			get { return artist; }
+			set { artist = value; }
+		}
+
 		public Difficulty Difficulty { get; set; }
 
 		[SerializeField]
@@ -73,6 +81,8 @@ namespace Xeltica.BeatBall
 		[SerializeField]
 		private Text titleText;
 		[SerializeField]
+		private Text artistText;
+		[SerializeField]
 		private Text difficulty;
 		[SerializeField]
 		private Text score;
@@ -104,14 +114,17 @@ namespace Xeltica.BeatBall
 			titleText.text = name ?? "No Title";
 
 			// 難易度表記
-			difficulty.text = $"{Difficulty.Name}  Lv.{Level}";
+			difficulty.text = $"{Difficulty.Name}\n<b>{Level}</b>";
 			difficulty.color = Difficulty.AccentColor;
 
+			// アーティスト
+			artistText.text = Artist ?? "Unknown Artist";
+			artistText.text = "　" + artistText.text;
 			// 判定
-			judge.text = $"<color=#bfbf00>{I18n["judge.great"]} {great}</color>  <color=#9f9f9f>{I18n["judge.good"]} {good}</color>  <color=#ef8f00>{I18n["judge.ok"]} {ok}</color>  <color=#9f8f00>{I18n["judge.bad"]} {bad}</color>";
+			judge.text = $"<color=#bfbf00>{I18n["judge.great"]} {great}</color>\n<color=#9f9f9f>{I18n["judge.good"]} {good}</color>\n<color=#ef8f00>{I18n["judge.ok"]} {ok}</color>\n<color=#9f8f00>{I18n["judge.bad"]} {bad}</color>";
 
 			// スコア
-			score.text = CalculateScore().ToString("N0");
+			score.text = $"Score: {CalculateScore():N0}";
 		}
 
 
