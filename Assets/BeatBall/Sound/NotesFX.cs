@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Runtime.Remoting.Messaging;
 
 namespace Xeltica.BeatBall
 {
@@ -44,8 +45,23 @@ namespace Xeltica.BeatBall
 			aud.playOnAwake = false;
 		}
 
-		public void DribbleStart() => aud.Play();
-		public void DribbleStop() => aud.Stop();
+		int dribbleCount = 0;
+
+		public void DribbleStart()
+		{
+			if (dribbleCount == 0)
+				aud.Play();
+			
+			dribbleCount++;
+		}
+
+		public void DribbleStop()
+		{
+			dribbleCount--;
+
+			if (dribbleCount == 0)
+				aud.Stop();
+		}
 
 		public void Kick() => aud.PlayOneShot(kick);
 		public void Knock() => aud.PlayOneShot(knock);
