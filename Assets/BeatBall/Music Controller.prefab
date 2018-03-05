@@ -134,11 +134,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chartPath: FLOWER/FLOWER.legend.bbf
-  kick: {fileID: 1282549875300136, guid: 09f83d5e7f9c64a66b87d0cf3e9de33e, type: 2}
-  LaneA: {fileID: 0}
-  LaneB: {fileID: 0}
-  LaneC: {fileID: 0}
-  LaneD: {fileID: 0}
+  kick: {fileID: 1542060221778258, guid: 306af21a2aa58457ab6a908f1ab1f206, type: 2}
+  laneA: {fileID: 0}
+  laneB: {fileID: 0}
+  laneC: {fileID: 0}
+  laneD: {fileID: 0}
+  dribbleLine: {fileID: 2100000, guid: 7a41148b4867740e3beaac5109544d61, type: 2}
   hiSpeed: 10
 --- !u!114 &114270330185381068
 MonoBehaviour:

@@ -24,16 +24,32 @@ namespace Xeltica.BeatBall
 		GameObject kick;
 
 		[SerializeField]
-		Transform LaneA;
+		GameObject dribble;
 
 		[SerializeField]
-		Transform LaneB;
+		GameObject volley;
 
 		[SerializeField]
-		Transform LaneC;
+		GameObject knock;
 
 		[SerializeField]
-		Transform LaneD;
+		GameObject puck;
+
+
+		[SerializeField]
+		Transform laneA;
+
+		[SerializeField]
+		Transform laneB;
+
+		[SerializeField]
+		Transform laneC;
+
+		[SerializeField]
+		Transform laneD;
+
+		[SerializeField]
+		Material dribbleLine;
 
 		[SerializeField]
 		float hiSpeed = 10;
@@ -85,6 +101,10 @@ namespace Xeltica.BeatBall
 			board.Difficulty = currentChart.Difficulty;
 			board.Name = currentChart.Title;
 			board.Level = currentChart.Level;
+			board.Artist = currentChart.Artist;
+
+			// hack ここ雑すぎるのでちゃんとする
+			board.NoteCount = currentChart.Notes.Count;
 
 			Beat beat = currentChart.Beat;
 			float tempo = currentChart.Bpm;
@@ -161,18 +181,55 @@ namespace Xeltica.BeatBall
 		}
 
 		public Transform GetLane(int l) =>
-			l == 0 ? LaneA :
-			l == 1 ? LaneB :
-			l == 2 ? LaneC :
-			l == 3 ? LaneD : null;
+			l == 0 ? laneA :
+			l == 1 ? laneB :
+			l == 2 ? laneC :
+			l == 3 ? laneD : null;
+
+		public GameObject GetNote(NoteType n)
+		{
+			switch (n)
+			{
+				case NoteType.Kick:
+					return kick;
+				case NoteType.Dribble:
+					return dribble;
+				case NoteType.Knock:
+					return knock;
+				case NoteType.Volley:
+					return volley;
+				case NoteType.Puck:
+					return puck;
+				default:
+					return null;
+			}
+		}
 
 		IEnumerator InstantiateNoteObjects()
 		{
 			yield return new WaitUntil(() => aud.isPlaying);
-			var waiter = new WaitWhile(() => notesDic.Count > 50);
+
 			foreach (var note in currentChart.Notes)
 			{
-				var tr = Instantiate(kick, Vector3.zero, new Quaternion(), GetLane(note.Lane)).transform;
+				if (note.Type == NoteType.Rotate || note.Type == NoteType.Vibrate)
+					continue;
+
+				var tr = Instantiate(GetNote(note.Type), Vector3.zero, new Quaternion(), GetLane(note.Lane)).transform;
+
+				// ドリブルの補助線
+				if (note.Type == NoteType.Dribble)
+				{
+					var dri = note as Dribble;
+					if (dri.Previous != null && notesDic.ContainsKey(dri.Previous))
+					{
+						var line = tr.gameObject.AddComponent<LineRenderer>();
+
+						line.material = dribbleLine;
+						line.useWorldSpace = false;
+						line.startWidth = 0.4f;
+						line.SetPositions(new Vector3[2]);
+					}
+				}
 				tr.localPosition = Vector3.zero;
 				tr.localRotation = Quaternion.Euler(0, 0, 0);
 
@@ -190,7 +247,7 @@ namespace Xeltica.BeatBall
 		}
 
 		// Update is called once per frame
-		void Update()
+		void FixedUpdate()
 		{
 			ProcessNotes();
 		}
@@ -225,12 +282,70 @@ namespace Xeltica.BeatBall
 					bpm = tempo.Value;
 				}
 				var pos = note.Value.localPosition;
-				note.Value.localPosition = new Vector3(pos.x, pos.y, Distance(hiSpeed, time + TickToTime(notesTicks[note.Key], bpm) - Music.AudioTimeSec));
-				if (note.Value.localPosition.z < -1)
+				note.Value.localPosition = new Vector3(pos.x, pos.y, Distance(hiSpeed * 2, time + TickToTime(notesTicks[note.Key], bpm) - Music.AudioTimeSec));
+
+				if (note.Key.Type == NoteType.Dribble)
 				{
-					Destroy(note.Value.gameObject);
+					var l = note.Value.gameObject.GetComponent<LineRenderer>();
+					var prev = (note.Key as Dribble).Previous;
+					if (l != null && notesDic.ContainsKey(prev) && notesDic[prev] != null)
+					{
+						var prevPos = notesDic[prev].position - note.Value.position;
+						var scale = note.Value.transform.localScale;
+						prevPos = new Vector3(prevPos.x / scale.x, prevPos.y / scale.y, prevPos.z / scale.z);
+						l.SetPosition(1, prevPos);
+					}
+				}
+
+				if (note.Value.localPosition.z <= 0)
+				{
+					Judge(note.Key, note.Value);
 				}
 			}
+		}
+
+		void Judge(NoteBase note, Transform tf)
+		{
+			//hack ちゃんと判定させる
+			ScoreBoardController.Instance.Great++;
+
+			switch (note.Type)
+			{
+				case NoteType.Kick:
+					NotesFX.Instance.Kick();
+					break;
+				case NoteType.Dribble:
+					NotesFX.Instance.Dribble();
+					var d = (Dribble)note;
+					if (d.IsFirstNote)
+						NotesFX.Instance.DribbleStart();
+					if (d.IsLastNote)
+						NotesFX.Instance.DribbleStop();	
+					break;
+				case NoteType.Knock:
+					NotesFX.Instance.Knock();
+					break;
+				case NoteType.Volley:
+					var v = (Volley)note;
+					if (v.IsFirstNote)
+						NotesFX.Instance.Receive();
+					else if (v.IsLastNote)
+						NotesFX.Instance.Spike();
+					else
+						NotesFX.Instance.Toss();
+					break;
+				case NoteType.Puck:
+					NotesFX.Instance.Puck();
+					break;
+				case NoteType.Rotate:
+					//todo 回転
+					break;
+				case NoteType.Vibrate:
+					//todo 振動
+					break;
+			}
+
+			Destroy(tf.gameObject);
 		}
 
 	}
