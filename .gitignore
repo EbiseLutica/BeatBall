@@ -38,4 +38,6 @@ sysinfo.txt
 .DS_Store
 
 # BeatBall Chart File
-charts/
+charts/*
+!charts/sample/
+!charts/sample2/
