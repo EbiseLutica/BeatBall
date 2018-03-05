@@ -141,7 +141,6 @@ namespace Xeltica.BeatBall
 
 			// ノーツ生成
 			StartCoroutine(InstantiateNoteObjects());
-			StartCoroutine(GC());
 
 			var beats = currentChart.Events.Where(e => e is BeatEvent).OfType<BeatEvent>();
 
@@ -236,15 +235,6 @@ namespace Xeltica.BeatBall
 			}
 		}
 
-		IEnumerator GC()
-		{
-			while (true)
-			{
-				notesDic.Where(kv => kv.Value == null).Select(kv => kv.Key).ToList().ForEach(v => notesDic.Remove(v));
-				yield return new WaitForSeconds(2);
-			}
-		}
-
 		// Update is called once per frame
 		void FixedUpdate()
 		{
@@ -302,7 +292,7 @@ namespace Xeltica.BeatBall
 					}
 				}
 
-				if (note.Value.localPosition.z <= 0)
+				if (time + TickToTime(notesTicks[note.Key], bpm) - Music.AudioTimeSec <= 0)
 				{
 					Judge(note.Key, note.Value);
 				}
@@ -373,8 +363,25 @@ namespace Xeltica.BeatBall
 					//todo 振動
 					break;
 			}
+			notesDic.Remove(note);
+			StartCoroutine(DelayedDestroy(note, tf.gameObject));
+		}
 
-			Destroy(tf.gameObject);
+		IEnumerator DelayedDestroy(NoteBase n, GameObject go)
+		{
+			var rigid = go.AddComponent<Rigidbody>();
+			var re = go.GetComponent<LineRenderer>();
+			if (re != null) Destroy(re);
+
+			// ドリブルの場合は最後のものだけ飛ばす
+			if (n.Type != NoteType.Dribble || (n as Dribble).IsLastNote)
+			{
+				rigid.AddForce(Vector3.forward * 1000);
+				rigid.AddForce(Vector3.up * 500);
+				rigid.AddForce((n.Lane < 2 ? Vector3.left : Vector3.right) * 250);
+				yield return new WaitUntil(() => go.transform.position.y < -10);
+			}
+			Destroy(go);
 		}
 
 		[Flags]
