@@ -26,7 +26,8 @@ note.puck : Puck
 
 message.tap : Tap To Start
 message.press : Press {0} To Start
-message.localizer: Localizer
+message.localizer : Localizer
+message.nochart : No Chart
 selector.designer : CHART DESIGNER
 
 menu.pref : Preferences
@@ -35,7 +36,7 @@ menu.pref.help : Help
 menu.pref.help.text : <b>What's Beat Ball?</b>¥
 Beat Ball is a music game which uses sports (especially ball games) as a motif.¥
 ¥
-I'm writing it in progress now.
+There is only autoplay mode yet.
 
 menu.pref.version : Version
 menu.pref.version.format : Beat Ball ver{0} ¥

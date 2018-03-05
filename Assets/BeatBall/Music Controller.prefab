@@ -133,8 +133,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf959de370d5b468caac5014ed783b04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chartPath: FLOWER/FLOWER.legend.bbf
-  kick: {fileID: 1542060221778258, guid: 306af21a2aa58457ab6a908f1ab1f206, type: 2}
+  chartPath: sample2/sample2.legend.bbf
+  kick: {fileID: 1336114057929672, guid: 39df2bc476f5745f389fbe1beb473b93, type: 2}
+  dribble: {fileID: 1840578843631652, guid: 65f6aa5ed4da44900b2dfdffe1114245, type: 2}
+  volley: {fileID: 1203091972476778, guid: 9951e729e44af4d95bce35ef8ebc83ad, type: 2}
+  knock: {fileID: 1900244058594014, guid: 3b0b30d5b44ab4336a875d78903542ab, type: 2}
+  puck: {fileID: 1919111257167518, guid: c611a2ed8e2be492f85ae840a26f17a4, type: 2}
   laneA: {fileID: 0}
   laneB: {fileID: 0}
   laneC: {fileID: 0}

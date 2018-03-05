@@ -25,18 +25,19 @@ note.puck : パック
 
 message.tap : タップしてはじめる
 message.press : {0} を押してはじめる
-message.localizer: 訳者
+message.nochart : 譜面がありません．
+message.localizer : 訳者
 selector.designer : 譜面デザイナー
 
 menu.pref : 環境設定
-menu.pref.osl : 権利表記
+menu.pref.osl : 権利表記(英語)
 menu.pref.help : ヘルプ
 menu.pref.help.text : <b>Beat Ball とは？</b> ¥
 Beat Ballは，スポーツ(特に球技)をモチーフとした音楽ゲームです．¥
 ¥
-まだ書いている途中です．
+現在はオートプレイしかできません．
 
 menu.pref.version : バージョン
 menu.pref.version.format : Beat Ball ver{0} ¥
 {1}¥
-オープンソースソフトウェアの権利表記もメニューにてご確認ください．
+オープンソースソフトウェアの権利表記(英語)もメニューにてご確認ください．

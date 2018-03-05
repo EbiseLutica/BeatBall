@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Linq;
 using System.IO;
 using System;
+using UnityEngine.SceneManagement;
 
 namespace Xeltica.BeatBall
 {
@@ -74,13 +75,22 @@ namespace Xeltica.BeatBall
 			notesTicks = new Dictionary<NoteBase, int>();
 			tempos = new List<TempoEvent>();
 
+			if (!string.IsNullOrEmpty(StaticData.ChartPath))
+				chartPath = StaticData.ChartPath;
+
 			if (kick == null)
 			{
 				Debug.LogError("Prefabを設定してください");
 				yield break;
 			}
-
-			rootPathOfChart = Path.Combine(Environment.CurrentDirectory, "charts");
+			if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer)
+			{
+				rootPathOfChart = Path.Combine(Application.persistentDataPath, "charts");
+			}
+			else
+			{
+				rootPathOfChart = Path.Combine(Environment.CurrentDirectory, "charts");
+			}
 			var chart = Path.Combine(rootPathOfChart, chartPath);
 
 			try
@@ -246,6 +256,11 @@ namespace Xeltica.BeatBall
 		void FixedUpdate()
 		{
 			ProcessNotes();
+
+			if (Input.GetKeyDown(KeyCode.Escape))
+			{
+				SceneManager.LoadScene("Title");
+			}
 		}
 
 		float Distance(float v, float t) => v * t;
@@ -315,7 +330,7 @@ namespace Xeltica.BeatBall
 			{
 				case NoteType.Kick:
 					if (!noteFlag.HasFlag(NoteFlag.Kick))
-					NotesFX.Instance.Kick();
+						NotesFX.Instance.Kick();
 
 					noteFlag |= NoteFlag.Kick;
 					break;
@@ -334,7 +349,7 @@ namespace Xeltica.BeatBall
 					break;
 				case NoteType.Knock:
 					if (!noteFlag.HasFlag(NoteFlag.Knock))
-					NotesFX.Instance.Knock();
+						NotesFX.Instance.Knock();
 
 					noteFlag |= NoteFlag.Knock;
 					break;
@@ -359,7 +374,7 @@ namespace Xeltica.BeatBall
 					break;
 				case NoteType.Puck:
 					if (!noteFlag.HasFlag(NoteFlag.Puck))
-					NotesFX.Instance.Puck();
+						NotesFX.Instance.Puck();
 
 					noteFlag |= NoteFlag.Puck;
 					break;
@@ -405,5 +420,9 @@ namespace Xeltica.BeatBall
 		}
 
 	}
+
+	public static class StaticData
+	{
+		public static string ChartPath { get; set; }
 	}
 }
