@@ -48,7 +48,13 @@ namespace Xeltica.BeatBall
 		Transform laneD;
 
 		[SerializeField]
-		Material dribbleLine;
+		Color dribbleStartColor;
+
+		[SerializeField]
+		Color dribbleEndColor;
+
+		[SerializeField]
+		Material dribbleMaterial;
 
 		[SerializeField]
 		float hiSpeed = 10;
@@ -221,10 +227,11 @@ namespace Xeltica.BeatBall
 					if (dri.Previous != null && notesDic.ContainsKey(dri.Previous))
 					{
 						var line = tr.gameObject.AddComponent<LineRenderer>();
-
-						line.material = dribbleLine;
+						line.startWidth = line.endWidth = 0.6f;
+						line.material = dribbleMaterial;
+						line.endColor = dribbleStartColor;
+						line.startColor = dribbleEndColor;
 						line.useWorldSpace = false;
-						line.startWidth = 0.4f;
 						line.SetPositions(new Vector3[2]);
 					}
 				}
