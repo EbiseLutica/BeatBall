@@ -242,7 +242,7 @@ namespace Xeltica.BeatBall
 				if (note.Type == NoteType.Rotate || note.Type == NoteType.Vibrate)
 					continue;
 
-				var tr = Instantiate(GetNote(note.Type), Vector3.zero, new Quaternion(), GetLane(note.Lane)).transform;
+				var tr = Instantiate(GetNote(note.Type), new Vector3(0, 0, 200), new Quaternion(), GetLane(note.Lane)).transform;
 
 				// ドリブルの補助線
 				if (note.Type == NoteType.Dribble)
@@ -259,7 +259,7 @@ namespace Xeltica.BeatBall
 						line.SetPositions(new Vector3[2]);
 					}
 				}
-				tr.localPosition = Vector3.zero;
+				tr.localPosition = new Vector3(0, 0, 200);
 				tr.localRotation = Quaternion.Euler(0, 0, 0);
 
 				notesDic.Add(note, tr);
@@ -420,7 +420,7 @@ namespace Xeltica.BeatBall
 				else if (n.Type == NoteType.Kick)
 					rigid.AddForce(Vector3.up * 200);
 				else if (n.Type != NoteType.Puck)
-				rigid.AddForce(Vector3.up * 500);
+					rigid.AddForce(Vector3.up * 500);
 				rigid.AddForce((n.Lane < 2 ? Vector3.left : Vector3.right) * 250);
 				yield return new WaitUntil(() => go.transform.position.z > 20 || go.transform.position.y < -50);
 			}
