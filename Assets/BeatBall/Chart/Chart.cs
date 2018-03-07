@@ -291,7 +291,7 @@ namespace Xeltica.BeatBall
 			else if ((match = cmdRegexp.Match(statement)).Success)
 			{
 				//コマンド
-				Debug.Log($"{lineNumber}: コマンド Header:{match.Captures[1]} Value:{match.Captures[2]}");
+				//Debug.Log($"{lineNumber}: コマンド Header:{match.Groups[1]} Value:{match.Groups[2]}");
 				var cmd = match.Groups[1].Value.ToLower();
 				var meas = 0;
 				if (cmd.StartsWith("bpm"))
