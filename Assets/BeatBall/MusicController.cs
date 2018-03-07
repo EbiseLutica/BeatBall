@@ -48,6 +48,7 @@ namespace Xeltica.BeatBall
 		[SerializeField]
 		Transform laneD;
 
+
 		[SerializeField]
 		Color dribbleStartColor;
 
@@ -56,6 +57,7 @@ namespace Xeltica.BeatBall
 
 		[SerializeField]
 		Material dribbleMaterial;
+
 
 		[SerializeField]
 		float hiSpeed = 10;
