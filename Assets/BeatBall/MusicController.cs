@@ -406,6 +406,8 @@ namespace Xeltica.BeatBall
 		IEnumerator DelayedDestroy(NoteBase n, GameObject go)
 		{
 			var rigid = go.AddComponent<Rigidbody>();
+			if (n.Type == NoteType.Puck)
+				rigid.useGravity = false;
 			var re = go.GetComponent<LineRenderer>();
 			if (re != null) Destroy(re);
 
@@ -413,9 +415,14 @@ namespace Xeltica.BeatBall
 			if (n.Type != NoteType.Dribble || (n as Dribble).IsLastNote)
 			{
 				rigid.AddForce(Vector3.forward * 1000);
+				if (n.Type == NoteType.Knock)
+					rigid.AddForce(Vector3.up * 50);
+				else if (n.Type == NoteType.Kick)
+					rigid.AddForce(Vector3.up * 200);
+				else if (n.Type != NoteType.Puck)
 				rigid.AddForce(Vector3.up * 500);
 				rigid.AddForce((n.Lane < 2 ? Vector3.left : Vector3.right) * 250);
-				yield return new WaitUntil(() => go.transform.position.y < -10);
+				yield return new WaitUntil(() => go.transform.position.z > 20 || go.transform.position.y < -50);
 			}
 			Destroy(go);
 		}
