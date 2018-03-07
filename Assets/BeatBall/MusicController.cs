@@ -62,10 +62,11 @@ namespace Xeltica.BeatBall
 		[SerializeField]
 		float hiSpeed = 10;
 
+		[SerializeField]
+		PlayBallRenderer playBallRenderer;
+
 		Dictionary<NoteBase, Transform> notesDic;
-
 		Dictionary<NoteBase, int> notesTicks;
-
 		List<TempoEvent> tempos;
 
 		// Use this for initialization
@@ -167,8 +168,19 @@ namespace Xeltica.BeatBall
 				notesTicks[note] = GetTickOfMeasure(note.Measure, beats) + note.Tick;
 			}
 
-			// 少々待つ
 			yield return new WaitForSeconds(1);
+			board.Ready = true;
+			if (playBallRenderer != null)
+			{
+				playBallRenderer.Visible = true;
+				yield return new WaitForSeconds(1);
+				playBallRenderer.Message = PlayBallRenderer.StartMessage.PlayBall;
+				yield return new WaitForSeconds(2);
+				playBallRenderer.Visible = false;
+				yield return new WaitForSeconds(0.25f);
+			}
+			// 少々待つ
+			yield return new WaitForSeconds(0.25f);
 
 			mus.PlayStart();
 		}
