@@ -50,7 +50,6 @@ namespace Xeltica.BeatBall
 			if (defaultView == null)
 				throw new InvalidOperationException("View が存在しません．");
 			Navigate(defaultView);
-			rect.sizeDelta = GameObject.FindGameObjectWithTag("Canvas").GetComponent<RectTransform>().rect.size;
 		}
 
 		public void Show() => visible = true;
@@ -93,7 +92,10 @@ namespace Xeltica.BeatBall
 		// Update is called once per frame
 		void Update()
 		{
-			// View 表示状態の制御
+			// ViewWindow のスケーリング
+			rect.sizeDelta = GameObject.FindGameObjectWithTag("Canvas").GetComponent<RectTransform>().rect.size;
+
+			// ViewWindow の表示状態の制御
 			var x = visible ? 0 : rect.rect.width;
 			rect.anchoredPosition = Vector2.Lerp(rect.anchoredPosition, new Vector2(x, rect.anchoredPosition.y), speed * Time.deltaTime);
 
