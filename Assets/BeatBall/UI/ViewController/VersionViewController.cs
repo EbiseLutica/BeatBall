@@ -7,7 +7,7 @@
 	{
 		private void Start()
 		{
-			Text = string.Format(I18n["menu.pref.version.format"], Constants.BBVersion, Constants.Copyright);
+			Text = string.Format(I18n["menu.pref.version.format"], Constants.Version, Constants.Copyright);
 		}
 	}
 
