@@ -85,9 +85,18 @@ namespace Xeltica.BeatBall
 		[SerializeField]
 		private Text difficulty;
 		[SerializeField]
+		private Text levelText;
+		[SerializeField]
 		private Text score;
 		[SerializeField]
 		private Text judge;
+		[SerializeField]
+		private float speed = 5;
+
+		RectTransform rect;
+
+
+		public bool Ready { get; set; }
 
 		/// <summary>
 		/// オブジェクト生成時に呼ばれます
@@ -95,6 +104,7 @@ namespace Xeltica.BeatBall
 		void Start()
 		{
 			Difficulty = Difficulty.Legend;
+			rect = GetComponent<RectTransform>();
 		}
 
 		/// <summary>
@@ -103,6 +113,14 @@ namespace Xeltica.BeatBall
 		void Update()
 		{
 			UIUpdate();
+			WindowUpdate();
+		}
+
+		void WindowUpdate()
+		{
+			//View 表示状態の制御
+			var y = Ready ? 0 : rect.rect.height;
+			rect.anchoredPosition = Vector2.Lerp(rect.anchoredPosition, new Vector2(rect.anchoredPosition.x, y), speed * Time.deltaTime);
 		}
 
 		/// <summary>
@@ -114,17 +132,19 @@ namespace Xeltica.BeatBall
 			titleText.text = name ?? "No Title";
 
 			// 難易度表記
-			difficulty.text = $"{Difficulty.Name}\n<b>{Level}</b>";
+			difficulty.text = $"{Difficulty.Name}";
 			difficulty.color = Difficulty.AccentColor;
-
+			
+			levelText.text = Level.ToString();
+			
 			// アーティスト
 			artistText.text = Artist ?? "Unknown Artist";
 			artistText.text = "　" + artistText.text;
 			// 判定
-			judge.text = $"<color=#bfbf00>{I18n["judge.great"]} {great}</color>\n<color=#9f9f9f>{I18n["judge.good"]} {good}</color>\n<color=#ef8f00>{I18n["judge.ok"]} {ok}</color>\n<color=#9f8f00>{I18n["judge.bad"]} {bad}</color>";
+			judge.text = $"<color=#bfbf00>{I18n["judge.great"]} {great}</color>\n<color=#ef8f00>{I18n["judge.good"]} {good}</color>\n<color=#40f77d>{I18n["judge.ok"]} {ok}</color>\n<color=#9f9f9f>{I18n["judge.bad"]} {bad}</color>";
 
 			// スコア
-			score.text = $"Score: {CalculateScore():N0}";
+			score.text = $"　{CalculateScore():N0}";
 		}
 
 
