@@ -14,6 +14,12 @@ namespace Xeltica.BeatBall
 		[SerializeField]
 		Text playButtonText;
 
+		[SerializeField]
+		Text copyRightText;
+
+		[SerializeField]
+		Text versionText;
+
 		string[] charts;
 
 		int chartPtr = 0;
@@ -50,6 +56,12 @@ namespace Xeltica.BeatBall
 			}
 			else
 				playButtonText.text = I18nProvider.Instance.CurrentLang["message.nochart"];
+
+			if (versionText != null)
+				versionText.text = Constants.Version.ToString();
+			
+			if (copyRightText != null)
+				copyRightText.text = Constants.Copyright;
 		}
 
 		public void Play()
