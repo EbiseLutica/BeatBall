@@ -26,4 +26,16 @@
 
 		public float Tempo { get; set; }
 	}
+
+	public class SpeedEvent : EventBase
+	{
+		public SpeedEvent(int measure, float speed, int tick) : base(measure)
+		{
+			Speed = speed;
+			Tick = tick;
+		}
+		public float Speed { get; set; }
+		public int Tick { get; set; }
+	}
+
 }

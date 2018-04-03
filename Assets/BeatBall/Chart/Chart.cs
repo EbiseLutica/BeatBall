@@ -56,10 +56,10 @@ namespace Xeltica.BeatBall
 			foreach (var line in lines)
 			{
 				i++;
-			
+
 				// 余白を消す
 				var l = line.TrimStart();
-	
+
 				// コメント部分を消す
 				if (l.IndexOf("//") >= 0)
 					l = l.Remove(l.IndexOf("//"));
@@ -85,7 +85,7 @@ namespace Xeltica.BeatBall
 					case "":
 						ProcessGlobal(l, i, ref chunk);
 						break;
-					
+
 					default:
 						throw new ChartErrorException($"不正なチャンク {chunk} です．", i);
 				}
@@ -296,6 +296,7 @@ namespace Xeltica.BeatBall
 				var meas = 0;
 				if (cmd.StartsWith("bpm"))
 				{
+					// BPM
 					cmd = cmd.Remove(0, 3);
 					if (!int.TryParse(cmd, out meas))
 						throw new ChartErrorException("ノーツ定義文が不正です", lineNumber);
@@ -303,10 +304,23 @@ namespace Xeltica.BeatBall
 				}
 				else if (cmd.StartsWith("beat"))
 				{
+					// 拍子
 					cmd = cmd.Remove(0, 4);
 					if (!int.TryParse(cmd, out meas))
 						throw new ChartErrorException("ノーツ定義文が不正です", lineNumber);
 					Events.Add(new BeatEvent(meas, ParseBeat(match.Groups[2].Value, lineNumber)));
+				}
+				else if (cmd.StartsWith("speed"))
+				{
+					// ハイスピード
+					cmd = cmd.Remove(0, 5);
+					if (!int.TryParse(cmd, out meas))
+						throw new ChartErrorException("ノーツ定義文が不正です", lineNumber);
+					float speed;
+					int tick;
+
+					ParseSpeed(match.Groups[2].Value, lineNumber, out speed, out tick);
+					Events.Add(new SpeedEvent(meas, speed, tick));
 				}
 				else
 				{
@@ -318,7 +332,7 @@ namespace Xeltica.BeatBall
 
 		}
 
-		Chart() 
+		Chart()
 		{
 			Notes = new List<NoteBase>();
 			Events = new List<EventBase>();
@@ -404,24 +418,29 @@ namespace Xeltica.BeatBall
 			return bpm;
 		}
 
+		public void ParseSpeed(string v, int l, out float speed, out int tick)
+		{
+			var arg = v.Split(',');
+
+			if (arg.Length == 2 && float.TryParse(arg[0], out speed) && int.TryParse(arg[1], out tick))
+				return;
+			else if (arg.Length == 1 && float.TryParse(arg[0], out speed))
+			{
+				tick = 0;
+				return;
+			}
+			
+			throw new ChartErrorException("不正なハイスピード設定です．", l);
+		}
+
 		public Beat ParseBeat(string v, int l)
 		{
 			var beats = v.Split('/');
-			if (beats.Length != 2)
-				throw new ChartErrorException("不正な拍子設定です．", l);
 			int rhythm, note;
-
-			if (!int.TryParse(beats[0], out rhythm))
-			{
-				throw new ChartErrorException("不正な拍子設定です．", l);
-			}
-
-			if (!int.TryParse(beats[1], out note))
-			{
-				throw new ChartErrorException("不正な拍子設定です．", l);
-			}
-
-			return new Beat(rhythm, note);
+			if (beats.Length == 2 && int.TryParse(beats[0], out rhythm) && int.TryParse(beats[1], out note))
+				return new Beat(rhythm, note);
+			
+			    throw new ChartErrorException("不正な拍子設定です．", l);
 		}
 
 		public delegate void CommandCallBack(string value, int line);
