@@ -68,12 +68,16 @@ namespace Xeltica.BeatBall
 		Dictionary<NoteBase, Transform> notesDic;
 		Dictionary<NoteBase, int> notesTicks;
 		Dictionary<NoteBase, float> notesTimes;
+		Dictionary<NoteBase, float> speededNotesTimes;
 
+		Dictionary<SpeedEvent, float> speedsTimes;
 		Dictionary<TempoEvent, int> temposTicks;
 		List<TempoEvent> tempos;
 		IEnumerable<BeatEvent> beats;
+		IEnumerable<SpeedEvent> speeds;
 
 
+		public double CurrentTime { get; set; }
 
 		// Use this for initialization
 		IEnumerator Start()
@@ -83,6 +87,7 @@ namespace Xeltica.BeatBall
 			notesDic = new Dictionary<NoteBase, Transform>();
 			notesTicks = new Dictionary<NoteBase, int>();
 			notesTimes = new Dictionary<NoteBase, float>();
+			speededNotesTimes = new Dictionary<NoteBase, float>();
 			tempos = new List<TempoEvent>();
 
 			if (!string.IsNullOrEmpty(StaticData.ChartPath))
@@ -163,21 +168,22 @@ namespace Xeltica.BeatBall
 
 			aud.clip = currentChart.Song = song;
 
-
-			// ノーツ生成
-			StartCoroutine(InstantiateNoteObjects());
-
 			tempos = tempos.OrderBy(t => t.Measure).ToList();
-
-			beats = currentChart.Events.Where(e => e is BeatEvent).OfType<BeatEvent>().OrderBy(b => b.Measure);
-
+			beats = currentChart.Events.OfType<BeatEvent>().OrderBy(b => b.Measure);
+			speeds = currentChart.Events.OfType<SpeedEvent>().OrderBy(b => b.Measure * 1000 + b.Tick);
 			temposTicks = tempos.Select(t => new KeyValuePair<TempoEvent, int>(t, GetTickOfMeasure(t.Measure))).ToDictionary(k => k.Key, v => v.Value);
 
 			foreach (var note in currentChart.Notes)
 			{
 				notesTicks[note] = GetTickOfMeasure(note.Measure) + note.Tick;
 				notesTimes[note] = TickToTime(notesTicks[note]);
+				speededNotesTimes[note] = SpeededTickToTime(notesTicks[note]);
 			}
+
+			speedsTimes = speeds.Select(s => new KeyValuePair<SpeedEvent, float>(s, TickToTime(GetTickOfMeasure(s.Measure + 1) + s.Tick))).ToDictionary(k => k.Key, k => k.Value);
+
+			// ノーツ生成
+			StartCoroutine(InstantiateNoteObjects());
 
 			yield return new WaitForSeconds(1);
 			board.Ready = true;
@@ -305,7 +311,27 @@ namespace Xeltica.BeatBall
 					m = (int)(60f / tempos[tempoPtr].Tempo / 4f / 12f * mul);
 					tempoPtr++;
 				}
-				result += m;
+				result += (int)(m);
+			}
+			return (float)result / mul;
+		}
+
+		float SpeededTickToTime(int tick)
+		{
+			const int mul = 1000000;
+			int m = (int)(60f / currentChart.Bpm / 4f / 12f * mul);
+			int tempoPtr = 0;
+			var result = 0;
+			var multiplier = 1f;
+			for (int i = 0; i < tick; i++)
+			{
+				if (tempoPtr < tempos.Count && temposTicks[tempos[tempoPtr]] <= i)
+				{
+					m = (int)(60f / tempos[tempoPtr].Tempo / 4f / 12f * mul);
+					tempoPtr++;
+				}
+				multiplier = speeds.LastOrDefault(s => GetTickOfMeasure(s.Measure) + s.Tick <= i)?.Speed ?? 1;
+				result += (int)(m * multiplier);
 			}
 			return (float)result / mul;
 		}
@@ -315,11 +341,13 @@ namespace Xeltica.BeatBall
 		/// </summary>
 		NoteFlag noteFlag;
 
+		double prevTime, deltaTime;
+
 		void ProcessNotes()
 		{
 			if (!aud.isPlaying)
 				return;
-
+			var audioTime = Music.AudioTimeSec;
 			if (Music.Just.Bar == 0 && Music.IsJustChangedBeat())
 			{
 				NotesFX.Instance.Metronome();
@@ -328,15 +356,22 @@ namespace Xeltica.BeatBall
 			noteFlag = NoteFlag.None;
 
 			Beat beat = currentChart.Beat;
+			var speedMul = 1f;
 			var time = GetTimeOfMeasure(beat, currentChart.Bpm);
+
+			speedMul = speedsTimes.LastOrDefault(s => s.Value <= audioTime).Key?.Speed ?? speedMul;
+
+			if (Music.IsPlaying)
+				deltaTime = audioTime - prevTime;
+
+			CurrentTime += deltaTime * speedMul;
 			foreach (var note in notesDic.ToList())
 			{
 				if (note.Value == null)
 					continue;
-				var tickTime = notesTimes[note.Key];
-				var pos = note.Value.localPosition;
-				note.Value.localPosition = new Vector3(pos.x, pos.y, Distance(hiSpeed * 2, time + tickTime - Music.AudioTimeSec));
 
+				var pos = note.Value.localPosition;
+				note.Value.localPosition = new Vector3(pos.x, pos.y, Distance(hiSpeed, (time + speededNotesTimes[note.Key] - (float)(CurrentTime))));
 				if (note.Key.Type == NoteType.Dribble)
 				{
 					var l = note.Value.gameObject.GetComponent<LineRenderer>();
@@ -350,11 +385,12 @@ namespace Xeltica.BeatBall
 					}
 				}
 
-				if (time + tickTime - Music.AudioTimeSec <= 0)
+				if (time + notesTimes[note.Key] - audioTime <= 0)
 				{
 					Judge(note.Key, note.Value);
 				}
 			}
+			prevTime = audioTime;
 		}
 
 		void Judge(NoteBase note, Transform tf)
