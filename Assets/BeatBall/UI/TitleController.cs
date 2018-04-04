@@ -18,6 +18,9 @@ namespace Xeltica.BeatBall
 		Text copyRightText;
 
 		[SerializeField]
+		private Text hsText;
+
+		[SerializeField]
 		Text versionText;
 
 		string[] charts;
@@ -25,6 +28,8 @@ namespace Xeltica.BeatBall
 		int chartPtr = 0;
 
 		bool HasCharts => charts.Length > 0;
+
+		int hispeed = 100;
 
 		string rootPathOfChart;
 
@@ -57,11 +62,22 @@ namespace Xeltica.BeatBall
 			else
 				playButtonText.text = I18nProvider.Instance.CurrentLang["message.nochart"];
 
+			if (hispeed < 10)
+				hispeed = 10;
+			if (hispeed > 300)
+				hispeed = 300;
+
+			StaticData.Hispeed = hispeed * .1f;
+
 			if (versionText != null)
 				versionText.text = Constants.Version.ToString();
 			
 			if (copyRightText != null)
 				copyRightText.text = Constants.Copyright;
+
+
+			if (hsText != null)
+				hsText.text = $"SPEED: {StaticData.Hispeed}";
 		}
 
 		public void Play()
@@ -81,5 +97,8 @@ namespace Xeltica.BeatBall
 		{
 			chartPtr++;
 		}
+
+		public void HsDec() => hispeed -= 1;
+		public void HsInc() => hispeed += 1;
 	}
 }

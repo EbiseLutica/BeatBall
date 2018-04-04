@@ -84,6 +84,8 @@ namespace Xeltica.BeatBall
 			speededNotesTimes = new Dictionary<NoteBase, float>();
 			tempos = new List<TempoEvent>();
 
+			hiSpeed = StaticData.Hispeed;
+
 			if (!string.IsNullOrEmpty(StaticData.ChartPath))
 				chartPath = StaticData.ChartPath;
 
@@ -526,5 +528,6 @@ namespace Xeltica.BeatBall
 	public static class StaticData
 	{
 		public static string ChartPath { get; set; }
+		public static float Hispeed { get; set; } = 10;
 	}
 }
