@@ -48,13 +48,6 @@ namespace Xeltica.BeatBall
 		[SerializeField]
 		Transform laneD;
 
-
-		[SerializeField]
-		Color dribbleStartColor;
-
-		[SerializeField]
-		Color dribbleEndColor;
-
 		[SerializeField]
 		Material dribbleMaterial;
 
@@ -267,13 +260,22 @@ namespace Xeltica.BeatBall
 					var dri = note as Dribble;
 					if (dri.Previous != null && notesDic.ContainsKey(dri.Previous))
 					{
-						var line = tr.gameObject.AddComponent<LineRenderer>();
-						line.startWidth = line.endWidth = 0.6f;
-						line.material = dribbleMaterial;
-						line.endColor = dribbleStartColor;
-						line.startColor = dribbleEndColor;
-						line.useWorldSpace = false;
-						line.SetPositions(new Vector3[2]);
+						//var line = tr.gameObject.AddComponent<LineRenderer>();
+						//line.startWidth = line.endWidth = 0.6f;
+						//line.material = dribbleMaterial;
+						//line.endColor = dribbleStartColor;
+						//line.startColor = dribbleEndColor;
+						//line.useWorldSpace = false;
+						//line.SetPositions(new Vector3[2]);
+
+						var line = new GameObject();
+						line.transform.SetParent(tr);
+						line.transform.localPosition = Vector3.zero;
+						var renderer = line.AddComponent<MeshRenderer>();
+						renderer.material = dribbleMaterial;
+						line.AddComponent<MeshFilter>();
+						var meshMod = line.AddComponent<LongNoteMeshModifier>();
+						meshMod.Width = tr.localScale.x;
 					}
 				}
 				tr.localPosition = new Vector3(0, 0, 200);
@@ -374,14 +376,25 @@ namespace Xeltica.BeatBall
 				note.Value.localPosition = new Vector3(pos.x, pos.y, Distance(hiSpeed, (time + speededNotesTimes[note.Key] - (float)(CurrentTime))));
 				if (note.Key.Type == NoteType.Dribble)
 				{
-					var l = note.Value.gameObject.GetComponent<LineRenderer>();
+					//var l = note.Value.gameObject.GetComponent<LineRenderer>();
+					//var prev = (note.Key as Dribble).Previous;
+					//if (l != null && notesDic.ContainsKey(prev) && notesDic[prev] != null)
+					//{
+					//	var prevPos = notesDic[prev].position - note.Value.position;
+					//	var scale = note.Value.transform.localScale;
+					//	prevPos = new Vector3(prevPos.x / scale.x, prevPos.y / scale.y, prevPos.z / scale.z);
+					//	l.SetPosition(1, prevPos);
+					//}
+					var l = note.Value.gameObject.GetComponentInChildren<LongNoteMeshModifier>();
 					var prev = (note.Key as Dribble).Previous;
+
 					if (l != null && notesDic.ContainsKey(prev) && notesDic[prev] != null)
 					{
 						var prevPos = notesDic[prev].position - note.Value.position;
-						var scale = note.Value.transform.localScale;
-						prevPos = new Vector3(prevPos.x / scale.x, prevPos.y / scale.y, prevPos.z / scale.z);
-						l.SetPosition(1, prevPos);
+						prevPos.z = -prevPos.z;
+						//var scale = note.Value.transform.localScale;
+						//prevPos = new Vector3(prevPos.x / scale.x, prevPos.y / scale.y, -prevPos.z / scale.z);
+						l.EndPosition = prevPos;
 					}
 				}
 
