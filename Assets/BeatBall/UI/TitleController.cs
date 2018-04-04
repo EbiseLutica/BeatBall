@@ -48,7 +48,7 @@ namespace Xeltica.BeatBall
 			if (HasCharts)
 			{
 				if (chartPtr < 0)
-					chartPtr = charts.Length;
+					chartPtr = charts.Length - 1;
 				if (chartPtr > charts.Length - 1)
 					chartPtr = 0;
 				
