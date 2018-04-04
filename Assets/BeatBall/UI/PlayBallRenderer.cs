@@ -86,7 +86,6 @@ public class PlayBallRenderer : MonoBehaviour
 		var nowTime = Time.time;
 		while (t <= timeToChange)
 		{
-			Debug.Log(t);
 			var angle = Mathf.Lerp(0, 360, t / timeToChange);
 
 			if (angle >= 270)
