@@ -69,6 +69,7 @@ namespace Xeltica.BeatBall
 		IEnumerable<BeatEvent> beats;
 		IEnumerable<SpeedEvent> speeds;
 
+		bool prevPlaying;
 
 		public double CurrentTime { get; set; }
 
@@ -290,10 +291,19 @@ namespace Xeltica.BeatBall
 		{
 			ProcessNotes();
 
-			if (Input.GetKeyDown(KeyCode.Escape))
+			if (!Music.IsPlaying && prevPlaying)
 			{
+				// hack 成績発表実装時に移動させる
 				SceneManager.LoadScene("Title");
 			}
+
+			if (Input.GetKeyDown(KeyCode.Escape))
+			{
+				// hack メニュー実装時は変更する
+				SceneManager.LoadScene("Title");
+			}
+
+			prevPlaying = Music.IsPlaying;
 		}
 
 		float Distance(float v, float t) => v * t;
