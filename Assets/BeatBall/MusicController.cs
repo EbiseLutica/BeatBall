@@ -71,7 +71,12 @@ namespace Xeltica.BeatBall
 
 		bool prevPlaying;
 
-		public double CurrentTime { get; set; }
+		const ulong mul = 100000000000;
+
+		public double CurrentTime => currentTimeInteger / (double)mul;
+
+		ulong currentTimeInteger;
+
 
 		// Use this for initialization
 		IEnumerator Start()
@@ -355,7 +360,7 @@ namespace Xeltica.BeatBall
 		/// </summary>
 		NoteFlag noteFlag;
 
-		double prevTime, deltaTime;
+		ulong prevTime, deltaTime;
 
 		void ProcessNotes()
 		{
@@ -376,9 +381,9 @@ namespace Xeltica.BeatBall
 			speedMul = speedsTimes.LastOrDefault(s => s.Value <= audioTime).Key?.Speed ?? speedMul;
 
 			if (Music.IsPlaying)
-				deltaTime = audioTime - prevTime;
+				deltaTime = (ulong)(audioTime * mul) - prevTime;
 
-			CurrentTime += deltaTime * speedMul;
+			currentTimeInteger += (ulong)(deltaTime * speedMul);
 			foreach (var note in notesDic.ToList())
 			{
 				if (note.Value == null)
@@ -415,7 +420,7 @@ namespace Xeltica.BeatBall
 					Judge(note.Key, note.Value);
 				}
 			}
-			prevTime = audioTime;
+			prevTime = (ulong)(audioTime * mul);
 		}
 
 		void Judge(NoteBase note, Transform tf)
@@ -491,8 +496,8 @@ namespace Xeltica.BeatBall
 			var rigid = go.AddComponent<Rigidbody>();
 			if (n.Type == NoteType.Puck)
 				rigid.useGravity = false;
-			var re = go.GetComponent<LineRenderer>();
-			if (re != null) Destroy(re);
+			var re = go.GetComponentInChildren<LongNoteMeshModifier>();
+			if (re != null) Destroy(re.gameObject);
 
 			// ドリブルの場合は最後のものだけ飛ばす
 			if (n.Type != NoteType.Dribble || (n as Dribble).IsLastNote)
