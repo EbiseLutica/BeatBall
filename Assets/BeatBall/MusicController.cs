@@ -82,7 +82,6 @@ namespace Xeltica.BeatBall
 		IEnumerator Start()
 		{
 			aud = GetComponent<AudioSource>();
-			mus = GetComponent<Music>();
 			notesDic = new Dictionary<NoteBase, Transform>();
 			notesTicks = new Dictionary<NoteBase, int>();
 			notesTimes = new Dictionary<NoteBase, float>();
@@ -139,10 +138,8 @@ namespace Xeltica.BeatBall
 
 			Beat beat = currentChart.Beat;
 			float tempo = currentChart.Bpm;
-			mus.Sections.Clear();
-			mus.Sections.Add(new Music.Section(0, 16 / beat.Note, 16 / beat.Note * beat.Rhythm, tempo));
 
-			mus.Sections.AddRange(currentChart.Events.Select(e =>
+			foreach (var e in currentChart.Events)
 			{
 				if (e is TempoEvent)
 				{
@@ -153,8 +150,8 @@ namespace Xeltica.BeatBall
 				{
 					beat = (e as BeatEvent).Beat;
 				}
-				return new Music.Section(e.Measure, 16 / beat.Note, 16 / beat.Note * beat.Rhythm, tempo);
-			}));
+				loadingProgress = (int)(count / currentChart.Events.Count * 100);
+			}
 
 			// オフセットを補正し，ゲーム用に1小節余白を開ける
 			var song = currentChart.Song;
@@ -199,8 +196,7 @@ namespace Xeltica.BeatBall
 			}
 			// 少々待つ
 			yield return new WaitForSeconds(0.25f);
-
-			mus.PlayStart();
+			aud.Play();
 		}
 
 		public static int TimeToSample(float time, int samplingRate = 44100, int ch = 2) => (int)(time * samplingRate + 0.5) * ch;
@@ -366,11 +362,7 @@ namespace Xeltica.BeatBall
 		{
 			if (!aud.isPlaying)
 				return;
-			var audioTime = Music.AudioTimeSec;
-			if (Music.Just.Bar == 0 && Music.IsJustChangedBeat())
-			{
-				NotesFX.Instance.Metronome();
-			}
+			var audioTime = aud.time;
 
 			noteFlag = NoteFlag.None;
 
