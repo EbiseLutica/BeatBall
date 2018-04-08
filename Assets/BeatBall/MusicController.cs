@@ -60,7 +60,6 @@ namespace Xeltica.BeatBall
 		PlayBallRenderer playBallRenderer;
 
 		Dictionary<NoteBase, Transform> notesDic;
-		Dictionary<NoteBase, int> notesTicks;
 		Dictionary<NoteBase, float> notesTimes;
 		Dictionary<NoteBase, float> speededNotesTimes;
 
@@ -98,7 +97,6 @@ namespace Xeltica.BeatBall
 			loadingLog = "loading.components";
 			aud = GetComponent<AudioSource>();
 			notesDic = new Dictionary<NoteBase, Transform>();
-			notesTicks = new Dictionary<NoteBase, int>();
 			notesTimes = new Dictionary<NoteBase, float>();
 			speededNotesTimes = new Dictionary<NoteBase, float>();
 			tempos = new List<TempoEvent>();
@@ -155,6 +153,8 @@ namespace Xeltica.BeatBall
 			// hack ここ雑すぎるのでちゃんとする
 			board.NoteCount = currentChart.Notes.Count;
 
+			currentChart.Notes.Sort((a, b) => a.Measure * 1000 + a.Tick < b.Measure * 1000 + b.Tick ? -1 : 1);
+
 			Beat beat = currentChart.Beat;
 			float tempo = currentChart.Bpm;
 
@@ -198,17 +198,20 @@ namespace Xeltica.BeatBall
 			beats = currentChart.Events.OfType<BeatEvent>().OrderBy(b => b.Measure);
 			speeds = currentChart.Events.OfType<SpeedEvent>().OrderBy(b => b.Measure * 1000 + b.Tick);
 			temposTicks = tempos.Select(t => new KeyValuePair<TempoEvent, int>(t, GetTickOfMeasure(t.Measure))).ToDictionary(k => k.Key, v => v.Value);
+			beats = beats.OrderBy(b => b.Measure);
 
 			float time = 0, stime = 0;
 			int tick = 0, prevTick = 0;
 			count = 0;
 			foreach (var note in currentChart.Notes)
 			{
-				notesTicks[note] = GetTickOfMeasure(note.Measure) + note.Tick;
-				notesTimes[note] = TickToTime(notesTicks[note]);
-				speededNotesTimes[note] = SpeededTickToTime(notesTicks[note]);
+				GetTimeFromTick(tick = GetTickOfMeasure(note.Measure) + note.Tick, out time, out stime, prevTick, time, stime);
+				notesTimes[note] = time;
+				speededNotesTimes[note] = stime;
+				//Debug.Log($"{time} {stime}");
 				yield return null;
 				count++;
+				prevTick = tick;
 				loadingProgress = (int)(count / (double)currentChart.Notes.Count * 100);
 			}
 
@@ -242,20 +245,40 @@ namespace Xeltica.BeatBall
 		public int GetTickOfMeasure(int measure)
 		{
 			var temp = 0;
-			var beat = currentChart.Beat;
-			var beatsList = beats.ToList();
 
-			// 順番にソート
-			beatsList.Sort((x, y) => x.Measure < y.Measure ? -1 : 1);
-			for (int i = 1; i <= measure; i++)
+			var beat = currentChart.Beat;
+
+			// 拍子イベントがなければそのまま
+			if (!beats.Any())
 			{
-				if (beatsList.Count > 0 && beatsList[0].Measure <= i)
-				{
-					beat = beatsList[0].Beat;
-					beatsList.RemoveAt(0);
+				return 16 / beat.Note * beat.Rhythm * 12 * measure;
 				}
-				temp += 16 / beat.Note * beat.Rhythm * 12;
+
+			var prevMeas = 0;
+			var prevBeat = currentChart.Beat;
+
+			foreach (var b in beats)
+			{
+				temp += 16 / prevBeat.Note * prevBeat.Rhythm * 12 * (b.Measure - prevMeas);
+				prevMeas = b.Measure;
+				prevBeat = b.Beat;
 			}
+
+			var last = beats.Last().Beat;
+
+			temp += 16 / last.Note * last.Rhythm * 12 * (measure - prevMeas);
+
+			//for (int i = 1; i <= measure; i++)
+			//{
+			//	if (beatsList.Count > 0 && beatsList[0].Measure <= i)
+			//	{
+			//		beat = beatsList[i].Beat;
+			//		beatsList.RemoveAt(i);
+			//	}
+
+			//	temp += 16 / beat.Note * beat.Rhythm * 12;
+			//}
+
 			return temp;
 		}
 
@@ -358,42 +381,29 @@ namespace Xeltica.BeatBall
 
 		float GetTimeOfMeasure(Beat beat, float bpm) => (60 * 4) / bpm * ((float)beat.Rhythm / beat.Note);
 
-		float TickToTime(int tick) 
+		void GetTimeFromTick(int tick, out float time, out float speededTime, int prevTick = 0, float prevTime = 0, float prevSpeededTime = 0)
 		{
 			const int mul = 1000000;
 			int m = (int)(60f / currentChart.Bpm / 4f / 12f * mul);
-			int tempoPtr = 0;
-			var result = 0;
-			for (int i = 0; i < tick; i++)
-			{
-				if (tempoPtr < tempos.Count && temposTicks[tempos[tempoPtr]] <= i)
+			var multiplier = 1f;
+			time = prevTime * mul;
+			speededTime = prevSpeededTime * mul;
+			for (int i = prevTick; i < tick; i++)
 				{
-					m = (int)(60f / tempos[tempoPtr].Tempo / 4f / 12f * mul);
-					tempoPtr++;
-				}
-				result += (int)(m);
+				m = (int)(60f / (tempos.LastOrDefault(t => temposTicks[t] < i)?.Tempo ?? currentChart.Bpm) / 4f / 12f * mul);
+				multiplier = speeds.LastOrDefault(s => GetTickOfMeasure(s.Measure) + s.Tick <= i)?.Speed ?? 1;
+				time += m;
+				speededTime += (int)(m * multiplier);
 			}
-			return (float)result / mul;
+			time /= mul;
+			speededTime /= mul;
 		}
 
-		float SpeededTickToTime(int tick)
-		{
-			const int mul = 1000000;
-			int m = (int)(60f / currentChart.Bpm / 4f / 12f * mul);
-			int tempoPtr = 0;
-			var result = 0;
-			var multiplier = 1f;
-			for (int i = 0; i < tick; i++)
-			{
-				if (tempoPtr < tempos.Count && temposTicks[tempos[tempoPtr]] <= i)
+		float TickToTime(int tick)
 				{
-					m = (int)(60f / tempos[tempoPtr].Tempo / 4f / 12f * mul);
-					tempoPtr++;
-				}
-				multiplier = speeds.LastOrDefault(s => GetTickOfMeasure(s.Measure) + s.Tick <= i)?.Speed ?? 1;
-				result += (int)(m * multiplier);
-			}
-			return (float)result / mul;
+			float time, _;
+			GetTimeFromTick(tick, out time, out _);
+			return time;
 		}
 
 		/// <summary>
@@ -402,6 +412,28 @@ namespace Xeltica.BeatBall
 		NoteFlag noteFlag;
 
 		ulong prevTime, deltaTime;
+
+		float CalculateCurrentTime(float time)
+		{
+			var speedsToUse = speedsTimes.TakeWhile(s => s.Value <= time).Select(s => s.Key).ToList();
+			var retVal = 0f;
+			if (speedsToUse.Count == 0)
+			{
+				// スピード設定が特になければ実際のtimeを返す
+				return time;
+			}
+
+			var prevTime = 0f;
+			var prevSpeed = 1f;
+			foreach (var s in speedsToUse)
+			{
+				retVal += (speedsTimes[s] - prevTime) * prevSpeed;
+				prevTime = speedsTimes[s];
+				prevSpeed = s.Speed;
+			}
+			var last = speedsToUse.Last();
+			return retVal + (time - speedsTimes[last]) * prevSpeed;
+		}
 
 		void ProcessNotes()
 		{
@@ -427,7 +459,7 @@ namespace Xeltica.BeatBall
 					continue;
 
 				var pos = note.Value.localPosition;
-				note.Value.localPosition = new Vector3(pos.x, pos.y, Distance(hiSpeed, (time + speededNotesTimes[note.Key] - (float)(CurrentTime))));
+				note.Value.localPosition = new Vector3(pos.x, pos.y, Distance(hiSpeed, (time + speededNotesTimes[note.Key] - currentTime)));
 				if (note.Key.Type == NoteType.Dribble)
 				{
 					//var l = note.Value.gameObject.GetComponent<LineRenderer>();
