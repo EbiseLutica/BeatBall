@@ -69,6 +69,8 @@ namespace Xeltica.BeatBall
 		IEnumerable<BeatEvent> beats;
 		IEnumerable<SpeedEvent> speeds;
 
+		Queue<float> metronomeTime;
+
 		bool prevPlaying;
 
 		const ulong mul = 100000000000;
@@ -100,6 +102,7 @@ namespace Xeltica.BeatBall
 			notesTimes = new Dictionary<NoteBase, float>();
 			speededNotesTimes = new Dictionary<NoteBase, float>();
 			tempos = new List<TempoEvent>();
+			metronomeTime = new Queue<float>();
 
 			hiSpeed = StaticData.Hispeed;
 
@@ -218,9 +221,16 @@ namespace Xeltica.BeatBall
 			speedsTimes = speeds.Select(s => new KeyValuePair<SpeedEvent, float>(s, TickToTime(GetTickOfMeasure(s.Measure + 1) + s.Tick))).ToDictionary(k => k.Key, k => k.Value);
 			yield return null;
 
+			var tickOfBeat = 192 / currentChart.Beat.Note;
+			for (int i = 0; i <= currentChart.Beat.Rhythm; i++)
+			{
+				metronomeTime.Enqueue((60f / currentChart.Bpm / 4f / 12f * (tickOfBeat * i)));
+			}
+
 			isInitialized = true;
 
 			Destroy(loadingUI);
+
 			// ノーツ生成
 			StartCoroutine(InstantiateNoteObjects());
 
@@ -252,7 +262,7 @@ namespace Xeltica.BeatBall
 			if (!beats.Any())
 			{
 				return 16 / beat.Note * beat.Rhythm * 12 * measure;
-				}
+			}
 
 			var prevMeas = 0;
 			var prevBeat = currentChart.Beat;
@@ -361,17 +371,17 @@ namespace Xeltica.BeatBall
 
 			if (isInitialized)
 			{
-			if (!Music.IsPlaying && prevPlaying)
-			{
-				// hack 成績発表実装時に移動させる
-				SceneManager.LoadScene("Title");
-			}
+				if (!Music.IsPlaying && prevPlaying)
+				{
+					// hack 成績発表実装時に移動させる
+					SceneManager.LoadScene("Title");
+				}
 
-			if (Input.GetKeyDown(KeyCode.Escape))
-			{
-				// hack メニュー実装時は変更する
-				SceneManager.LoadScene("Title");
-			}
+				if (Input.GetKeyDown(KeyCode.Escape))
+				{
+					// hack メニュー実装時は変更する
+					SceneManager.LoadScene("Title");
+				}
 			}
 
 			prevPlaying = Music.IsPlaying;
@@ -389,7 +399,7 @@ namespace Xeltica.BeatBall
 			time = prevTime * mul;
 			speededTime = prevSpeededTime * mul;
 			for (int i = prevTick; i < tick; i++)
-				{
+			{
 				m = (int)(60f / (tempos.LastOrDefault(t => temposTicks[t] < i)?.Tempo ?? currentChart.Bpm) / 4f / 12f * mul);
 				multiplier = speeds.LastOrDefault(s => GetTickOfMeasure(s.Measure) + s.Tick <= i)?.Speed ?? 1;
 				time += m;
@@ -400,7 +410,7 @@ namespace Xeltica.BeatBall
 		}
 
 		float TickToTime(int tick)
-				{
+		{
 			float time, _;
 			GetTimeFromTick(tick, out time, out _);
 			return time;
@@ -447,12 +457,18 @@ namespace Xeltica.BeatBall
 			var speedMul = 1f;
 			var time = GetTimeOfMeasure(beat, currentChart.Bpm);
 
-			speedMul = speedsTimes.LastOrDefault(s => s.Value <= audioTime).Key?.Speed ?? speedMul;
+			var currentTime = CalculateCurrentTime(audioTime);
+
+
+			if (metronomeTime.Count > 0 && metronomeTime.Peek() <= audioTime)
+			{
+				metronomeTime.Dequeue();
+				NotesFX.Instance.Metronome();
+			}
 
 			if (Music.IsPlaying)
 				deltaTime = (ulong)(audioTime * mul) - prevTime;
-
-			currentTimeInteger += (ulong)(deltaTime * speedMul);
+			
 			foreach (var note in notesDic.ToList())
 			{
 				if (note.Value == null)
@@ -507,11 +523,11 @@ namespace Xeltica.BeatBall
 					break;
 				case NoteType.Dribble:
 					var d = (Dribble)note;
-				
+
 					if (d.IsFirstNote)
 						NotesFX.Instance.DribbleStart();
 					if (d.IsLastNote)
-						NotesFX.Instance.DribbleStop();	
+						NotesFX.Instance.DribbleStop();
 
 					if (!noteFlag.HasFlag(NoteFlag.Dribble))
 						NotesFX.Instance.Dribble();
