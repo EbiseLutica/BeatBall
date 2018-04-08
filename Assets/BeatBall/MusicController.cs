@@ -254,7 +254,8 @@ namespace Xeltica.BeatBall
 		IEnumerator InstantiateNoteObjects()
 		{
 			yield return new WaitUntil(() => aud.isPlaying);
-
+			var cnt = 0;
+			var prevMeasure = 0;
 			foreach (var note in currentChart.Notes)
 			{
 				if (note.Type == NoteType.Rotate || note.Type == NoteType.Vibrate)
@@ -268,14 +269,6 @@ namespace Xeltica.BeatBall
 					var dri = note as Dribble;
 					if (dri.Previous != null && notesDic.ContainsKey(dri.Previous))
 					{
-						//var line = tr.gameObject.AddComponent<LineRenderer>();
-						//line.startWidth = line.endWidth = 0.6f;
-						//line.material = dribbleMaterial;
-						//line.endColor = dribbleStartColor;
-						//line.startColor = dribbleEndColor;
-						//line.useWorldSpace = false;
-						//line.SetPositions(new Vector3[2]);
-
 						var line = new GameObject();
 						line.transform.SetParent(tr);
 						line.transform.localPosition = Vector3.zero;
@@ -290,6 +283,13 @@ namespace Xeltica.BeatBall
 				tr.localRotation = Quaternion.Euler(0, 0, 0);
 
 				notesDic.Add(note, tr);
+				cnt++;
+				if (prevMeasure != note.Measure || cnt > 30)
+				{
+					yield return null;
+					cnt = 0;
+				}
+				prevMeasure = note.Measure;
 			}
 		}
 
