@@ -299,7 +299,11 @@ namespace Xeltica.BeatBall
 					cmd = cmd.Remove(0, 3);
 					if (!int.TryParse(cmd, out meas))
 						throw new ChartErrorException("ノーツ定義文が不正です", lineNumber);
-					Events.Add(new TempoEvent(meas, ParseBpm(match.Groups[2].Value, lineNumber)));
+					float bpm;
+					int tick;
+
+					ParseBpm(match.Groups[2].Value, lineNumber, out bpm, out tick);
+					Events.Add(new TempoEvent(meas, bpm, tick));
 				}
 				else if (cmd.StartsWith("beat"))
 				{
@@ -409,12 +413,27 @@ namespace Xeltica.BeatBall
 			});
 		}
 
+		public void ParseBpm(string v, int l, out float bpm, out int tick)
+		{
+			var arg = v.Split(',');
+
+			if (arg.Length == 2 && float.TryParse(arg[0], out bpm) && int.TryParse(arg[1], out tick))
+				return;
+			else if (arg.Length == 1 && float.TryParse(arg[0], out bpm))
+			{
+				tick = 0;
+				return;
+			}
+			
+			throw new ChartErrorException("不正なBPM設定です．", l);
+		}
+
 		public float ParseBpm(string v, int l)
 		{
-			float bpm;
-			if (!float.TryParse(v, out bpm))
-				throw new ChartErrorException("数値でない値を BPM に設定しようとしました．", l);
-			return bpm;
+			float ret;
+			int _;
+			ParseBpm(v, l, out ret, out _);
+			return ret;
 		}
 
 		public void ParseSpeed(string v, int l, out float speed, out int tick)

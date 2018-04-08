@@ -19,12 +19,14 @@
 
 	public class TempoEvent : EventBase
 	{
-		public TempoEvent(int measure, float tempo) : base(measure)
+		public TempoEvent(int measure, float tempo, int tick) : base(measure)
 		{
 			Tempo = tempo;
+			Tick = tick;
 		}
 
 		public float Tempo { get; set; }
+		public int Tick { get; set; }
 	}
 
 	public class SpeedEvent : EventBase
