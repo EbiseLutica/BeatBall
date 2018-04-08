@@ -35,7 +35,7 @@ namespace Xeltica.BeatBall
 
 		void Start()
 		{
-			
+			Application.targetFrameRate = 60;
 			if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer)
 			{
 				rootPathOfChart = Path.Combine(Application.persistentDataPath, "charts");
