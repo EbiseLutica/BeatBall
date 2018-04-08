@@ -41,3 +41,12 @@ menu.pref.version : バージョン
 menu.pref.version.format : Beat Ball ver{0} ¥
 {1}¥
 オープンソースソフトウェアの権利表記(英語)もメニューにてご確認ください．
+
+loading.data : データを初期化しています
+loading.chart : 譜面を読み込んでいます
+error.incompatible : 譜面の互換性がありません．
+error.parse : 譜面読み込みに失敗しました．¥
+{0}
+loading.music : 音楽を読み込んでいます
+loading.optimize : 音楽を最適化しています
+loading.cache : キャッシュを生成しています
