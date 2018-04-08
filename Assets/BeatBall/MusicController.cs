@@ -533,6 +533,6 @@ namespace Xeltica.BeatBall
 	public static class StaticData
 	{
 		public static string ChartPath { get; set; }
-		public static float Hispeed { get; set; } = 10;
+		public static float Hispeed { get; set; } = 20;
 	}
 }
