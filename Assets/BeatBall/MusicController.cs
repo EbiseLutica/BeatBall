@@ -5,6 +5,7 @@ using System.Linq;
 using System.IO;
 using System;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace Xeltica.BeatBall
 {
@@ -77,10 +78,24 @@ namespace Xeltica.BeatBall
 
 		ulong currentTimeInteger;
 
+		[SerializeField]
+		Text loadingText;
+
+		[SerializeField]
+		GameObject loadingUI;
+
+		LocalizableString loadingLog;
+
+		int loadingProgress;
+
+		bool isInitialized = false;
 
 		// Use this for initialization
 		IEnumerator Start()
 		{
+			int count = 0;
+
+			loadingLog = "loading.components";
 			aud = GetComponent<AudioSource>();
 			notesDic = new Dictionary<NoteBase, Transform>();
 			notesTicks = new Dictionary<NoteBase, int>();
@@ -108,6 +123,8 @@ namespace Xeltica.BeatBall
 			}
 			var chart = Path.Combine(rootPathOfChart, chartPath);
 
+			yield return null;
+			loadingLog = "loading.chart";
 			try
 			{
 				currentChart = Chart.Parse(File.ReadAllText(chart));
@@ -123,6 +140,8 @@ namespace Xeltica.BeatBall
 				yield break;
 			}
 
+			yield return null;
+			loadingLog = "loading.music";
 			WWW www;
 			yield return www = WWWWrapper.OpenLocalFile(Path.Combine(Path.GetDirectoryName(chart), currentChart.SongFile));
 			currentChart.Song = www.GetAudioClip();
@@ -139,6 +158,8 @@ namespace Xeltica.BeatBall
 			Beat beat = currentChart.Beat;
 			float tempo = currentChart.Bpm;
 
+			count = 0;
+
 			foreach (var e in currentChart.Events)
 			{
 				if (e is TempoEvent)
@@ -150,10 +171,14 @@ namespace Xeltica.BeatBall
 				{
 					beat = (e as BeatEvent).Beat;
 				}
+				count++;
 				loadingProgress = (int)(count / currentChart.Events.Count * 100);
 			}
 
 			// オフセットを補正し，ゲーム用に1小節余白を開ける
+
+			yield return null;
+			loadingLog = "loading.optimize";
 			var song = currentChart.Song;
 			var buf = new float[song.samples * song.channels - TimeToSample(currentChart.Offset, song.frequency, song.channels)];
 
@@ -166,24 +191,36 @@ namespace Xeltica.BeatBall
 
 			aud.clip = currentChart.Song = song;
 
+			yield return null;
+
+			loadingLog = "loading.cache";
 			tempos = tempos.OrderBy(t => t.Measure).ToList();
 			beats = currentChart.Events.OfType<BeatEvent>().OrderBy(b => b.Measure);
 			speeds = currentChart.Events.OfType<SpeedEvent>().OrderBy(b => b.Measure * 1000 + b.Tick);
 			temposTicks = tempos.Select(t => new KeyValuePair<TempoEvent, int>(t, GetTickOfMeasure(t.Measure))).ToDictionary(k => k.Key, v => v.Value);
 
+			float time = 0, stime = 0;
+			int tick = 0, prevTick = 0;
+			count = 0;
 			foreach (var note in currentChart.Notes)
 			{
 				notesTicks[note] = GetTickOfMeasure(note.Measure) + note.Tick;
 				notesTimes[note] = TickToTime(notesTicks[note]);
 				speededNotesTimes[note] = SpeededTickToTime(notesTicks[note]);
+				yield return null;
+				count++;
+				loadingProgress = (int)(count / (double)currentChart.Notes.Count * 100);
 			}
 
 			speedsTimes = speeds.Select(s => new KeyValuePair<SpeedEvent, float>(s, TickToTime(GetTickOfMeasure(s.Measure + 1) + s.Tick))).ToDictionary(k => k.Key, k => k.Value);
+			yield return null;
 
+			isInitialized = true;
+
+			Destroy(loadingUI);
 			// ノーツ生成
 			StartCoroutine(InstantiateNoteObjects());
 
-			yield return new WaitForSeconds(1);
 			board.Ready = true;
 			if (playBallRenderer != null)
 			{
@@ -294,6 +331,13 @@ namespace Xeltica.BeatBall
 		{
 			ProcessNotes();
 
+			if (loadingUI != null)
+			{
+				loadingText.text = $"{loadingLog}\n{loadingProgress}%";
+			}
+
+			if (isInitialized)
+			{
 			if (!Music.IsPlaying && prevPlaying)
 			{
 				// hack 成績発表実装時に移動させる
@@ -304,6 +348,7 @@ namespace Xeltica.BeatBall
 			{
 				// hack メニュー実装時は変更する
 				SceneManager.LoadScene("Title");
+			}
 			}
 
 			prevPlaying = Music.IsPlaying;
