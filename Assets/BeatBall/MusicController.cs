@@ -182,7 +182,8 @@ namespace Xeltica.BeatBall
 					beat = (e as BeatEvent).Beat;
 				}
 				count++;
-				loadingProgress = (int)(count / currentChart.Events.Count * 100);
+				loadingProgress = (int)(count / (double)currentChart.Events.Count * 100);
+				yield return null;
 			}
 
 			// オフセットを補正し，ゲーム用に1小節余白を開ける
