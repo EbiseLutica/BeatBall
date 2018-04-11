@@ -92,7 +92,7 @@ namespace Xeltica.BeatBall
 
 		int loadingProgress;
 
-		bool isInitialized = false;
+		bool isInitialized;
 
 		bool isError;
 
