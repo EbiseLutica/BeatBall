@@ -350,10 +350,10 @@ namespace Xeltica.BeatBall
 
 				notesDic.Add(note, tr);
 				cnt++;
-				if (prevMeasure != note.Measure || cnt > 30)
+				if (prevMeasure != note.Measure || cnt > 15)
 				{
-					yield return null;
-					cnt = 0;
+					yield return new WaitForEndOfFrame();
+					cnt %= 15;
 				}
 				prevMeasure = note.Measure;
 			}
