@@ -14,7 +14,7 @@ namespace Xeltica.BeatBall
 		/// <summary>
 		/// BeatBall のバージョンです．
 		/// </summary>
-		public static readonly AppVersion Version = new AppVersion("pre180408");
+		public static readonly AppVersion Version = new AppVersion("1.0.0", VersionState.Alpha);
 
 		/// <summary>
 		/// 理論値．
@@ -60,9 +60,9 @@ namespace Xeltica.BeatBall
 
 		private void SetVersion(Match m)
 		{
-			Major = int.Parse(m.Groups[0].Value);
-			Minor = int.Parse(m.Groups[1].Value);
-			if (m.Groups[2].Success)
+			Major = int.Parse(m.Groups[1].Value);
+			Minor = int.Parse(m.Groups[2].Value);
+			if (m.Groups[3].Success)
 				Revision = int.Parse(m.Groups[2].Value);
 		}
 
