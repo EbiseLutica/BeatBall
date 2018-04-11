@@ -6,6 +6,7 @@ using System.IO;
 using System;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.Text;
 
 namespace Xeltica.BeatBall
 {
@@ -87,9 +88,15 @@ namespace Xeltica.BeatBall
 
 		LocalizableString loadingLog;
 
+		string errorLog;
+
 		int loadingProgress;
 
 		bool isInitialized = false;
+
+		bool isError;
+
+
 
 		// Use this for initialization
 		IEnumerator Start()
@@ -132,12 +139,12 @@ namespace Xeltica.BeatBall
 			}
 			catch (ChartIncompatibleException ex)
 			{
-				Debug.LogError($"譜面の互換性がありません．{ex.LineNumber}行目");
+				HandleError($"譜面の互換性がありません．{ex.LineNumber}行目");
 				yield break;
 			}
 			catch (ChartErrorException ex)
 			{
-				Debug.LogError($"パースエラー {ex.Message} {ex.LineNumber}行目");
+				HandleError($"構文エラー {ex.Message} {ex.LineNumber}行目");
 				yield break;
 			}
 
@@ -251,6 +258,17 @@ namespace Xeltica.BeatBall
 
 		public static int TimeToSample(float time, int samplingRate = 44100, int ch = 2) => (int)(time * samplingRate + 0.5) * ch;
 		public static float SampleToTime(int sample, int samplingRate = 44100, int ch = 2) => (float)sample / samplingRate / ch;
+
+		void HandleError(string errorMessage)
+		{
+			Debug.LogError(errorMessage);
+			errorLog = new StringBuilder()
+				.AppendLine("<b>エラーが発生しました！</b>")
+				.AppendLine(errorMessage)
+				.AppendLine("ESC キーで戻る")
+				.ToString();
+			isError = true;
+		}
 
 		public int GetTickOfMeasure(int measure)
 		{
@@ -366,10 +384,18 @@ namespace Xeltica.BeatBall
 
 			if (loadingUI != null)
 			{
+				if (isError)
+				{
+					loadingText.text = errorLog;
+					loadingUI.GetComponent<Image>().color = new Color(0.5f, 0, 0, 0.6f);
+				}
+				else
+			{
 				loadingText.text = $"{loadingLog}\n{loadingProgress}%";
 			}
+			}
 
-			if (isInitialized)
+			if (isInitialized || isError)
 			{
 				if (!Music.IsPlaying && prevPlaying)
 				{
