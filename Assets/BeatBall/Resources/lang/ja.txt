@@ -25,7 +25,7 @@ note.puck : パック
 
 message.tap : タップしてはじめる
 message.press : {0} を押してはじめる
-message.nochart : 譜面がありません．
+message.nochart : 譜面がありません。
 message.localizer : 訳者
 selector.designer : 譜面デザイナー
 
@@ -33,19 +33,26 @@ menu.pref : 環境設定
 menu.pref.osl : 権利表記(英語)
 menu.pref.help : ヘルプ
 menu.pref.help.text : <b>Beat Ball とは？</b> ¥
-Beat Ballは，スポーツ(特に球技)をモチーフとした音楽ゲームです．¥
+Beat Ballは、スポーツ(特に球技)をモチーフとした音楽ゲームです。¥
+個性豊かな5種類のノーツに合わせて演奏します。¥
+キック : サッカーボール型のノーツです。そのままタップします。¥
+ノック : 野球ボール型のノーツです。タイミングにあわせてフリックします。¥
+ドリブル : バスケットボール型のノーツです。線に沿ってスライドします。¥
+バレー : バレーボール型のノーツです。タップすると上に飛んで，また戻ってくるので最後までタップし続けます。
+パック : 平たいエアホッケーノーツです。判定タイミングで押されていれば得点が入ります。¥
 ¥
 現在はオートプレイしかできません．
 
 menu.pref.version : バージョン
-menu.pref.version.format : Beat Ball ver{0} ¥
+menu.pref.version.format : Beat Ball {0} ¥
 {1}¥
-オープンソースソフトウェアの権利表記(英語)もメニューにてご確認ください．
+オープンソースソフトウェアの権利表記(英語)もメニューにてご確認ください。
 
+loading.components : コンポーネントを読み込んでいます
 loading.data : データを初期化しています
 loading.chart : 譜面を読み込んでいます
-error.incompatible : 譜面の互換性がありません．
-error.parse : 譜面読み込みに失敗しました．¥
+error.incompatible : 譜面の互換性がありません。
+error.parse : 譜面読み込みに失敗しました。¥
 {0}
 loading.music : 音楽を読み込んでいます
 loading.optimize : 音楽を最適化しています

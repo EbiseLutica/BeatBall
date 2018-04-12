@@ -33,16 +33,24 @@ selector.designer : CHART DESIGNER
 menu.pref : Preferences
 menu.pref.osl : Open Source License
 menu.pref.help : Help
-menu.pref.help.text : <b>What's Beat Ball?</b>¥
+menu.pref.help.text : 
+<b>What's Beat Ball?</b>¥
 Beat Ball is a music game which uses sports (especially ball games) as a motif.¥
+You play with 5 unique notes.¥
+Kick : Soccer ball like notes. Simply tap it.
+Knock : Baseball like notes. Flick it according to the music timing.
+Dribble : Basketball like notes. Slide along the line.
+Volley : Volleyball like notes. Tap it and it will fly and return, so you continue to tap it until the end.
+Puck : Flat air hockey like notes. Simply hold it to get a point.
 ¥
 There is only autoplay mode yet.
 
 menu.pref.version : Version
-menu.pref.version.format : Beat Ball ver{0} ¥
+menu.pref.version.format : Beat Ball {0} ¥
 {1}¥
 Please also check Open Source License at the menu.
 
+loading.components : Loading components...
 loading.data : Initialize Data...
 loading.chart : Loading the chart...
 error.incompatible : Imcompatible chart!
