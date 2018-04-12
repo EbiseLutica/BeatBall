@@ -66,6 +66,7 @@ namespace Xeltica.BeatBall
 
 		Dictionary<SpeedEvent, float> speedsTimes;
 		Dictionary<TempoEvent, int> temposTicks;
+		Dictionary<NoteBase, LongNoteMeshModifier> longNoteMeshCaches;
 		List<TempoEvent> tempos;
 		IEnumerable<BeatEvent> beats;
 		IEnumerable<SpeedEvent> speeds;
@@ -110,6 +111,7 @@ namespace Xeltica.BeatBall
 			speededNotesTimes = new Dictionary<NoteBase, float>();
 			tempos = new List<TempoEvent>();
 			metronomeTime = new Queue<float>();
+			longNoteMeshCaches = new Dictionary<NoteBase, LongNoteMeshModifier>();
 
 			hiSpeed = StaticData.Hispeed;
 
@@ -468,8 +470,7 @@ namespace Xeltica.BeatBall
 				prevTime = speedsTimes[s];
 				prevSpeed = s.Speed;
 			}
-			var last = speedsToUse.Last();
-			return retVal + (time - speedsTimes[last]) * prevSpeed;
+			return retVal + (time - speedsTimes[speedsToUse.Last()]) * prevSpeed;
 		}
 
 		void ProcessNotes()
@@ -499,30 +500,26 @@ namespace Xeltica.BeatBall
 			foreach (var note in notesDic.ToList())
 			{
 				if (note.Value == null)
+				{
+					if (note.Key.Type == NoteType.Dribble && longNoteMeshCaches.ContainsKey(note.Key))
+					{
+						longNoteMeshCaches.Remove(note.Key);
+					}
 					continue;
-
+				}
 				var pos = note.Value.localPosition;
 				note.Value.localPosition = new Vector3(pos.x, pos.y, Distance(hiSpeed, (time + speededNotesTimes[note.Key] - currentTime)));
+
 				if (note.Key.Type == NoteType.Dribble)
 				{
-					//var l = note.Value.gameObject.GetComponent<LineRenderer>();
-					//var prev = (note.Key as Dribble).Previous;
-					//if (l != null && notesDic.ContainsKey(prev) && notesDic[prev] != null)
-					//{
-					//	var prevPos = notesDic[prev].position - note.Value.position;
-					//	var scale = note.Value.transform.localScale;
-					//	prevPos = new Vector3(prevPos.x / scale.x, prevPos.y / scale.y, prevPos.z / scale.z);
-					//	l.SetPosition(1, prevPos);
-					//}
-					var l = note.Value.gameObject.GetComponentInChildren<LongNoteMeshModifier>();
+					var l = longNoteMeshCaches.ContainsKey(note.Key) ? longNoteMeshCaches[note.Key]
+						  : longNoteMeshCaches[note.Key] = note.Value.gameObject.GetComponentInChildren<LongNoteMeshModifier>();
 					var prev = (note.Key as Dribble).Previous;
 
 					if (l != null && notesDic.ContainsKey(prev) && notesDic[prev] != null)
 					{
 						var prevPos = notesDic[prev].position - note.Value.position;
 						prevPos.z = -prevPos.z;
-						//var scale = note.Value.transform.localScale;
-						//prevPos = new Vector3(prevPos.x / scale.x, prevPos.y / scale.y, -prevPos.z / scale.z);
 						l.EndPosition = prevPos;
 					}
 				}
