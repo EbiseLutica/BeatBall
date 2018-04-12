@@ -27,7 +27,7 @@ namespace Xeltica.BeatBall
 
 		int chartPtr = 0;
 
-		bool HasCharts => charts.Length > 0;
+		bool HasCharts => charts != null && charts.Length > 0;
 
 		int hispeed = 0;
 
@@ -45,7 +45,9 @@ namespace Xeltica.BeatBall
 				rootPathOfChart = Path.Combine(Environment.CurrentDirectory, "charts");
 			}
 			hispeed = (int)(StaticData.Hispeed * 10);
-			charts = Directory.GetFiles(rootPathOfChart, "*.bbf", SearchOption.AllDirectories);
+
+			if (Directory.Exists(rootPathOfChart))
+				charts = Directory.GetFiles(rootPathOfChart, "*.bbf", SearchOption.AllDirectories);
 		}
 
 		void Update()
