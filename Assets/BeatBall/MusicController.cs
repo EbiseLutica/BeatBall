@@ -232,7 +232,14 @@ namespace Xeltica.BeatBall
 				loadingProgress = (int)(count / (double)currentChart.Notes.Count * 100);
 			}
 
-			speedsTimes = speeds.Select(s => new KeyValuePair<SpeedEvent, float>(s, TickToTime(GetTickOfMeasure(s.Measure + 1) + s.Tick))).ToDictionary(k => k.Key, k => k.Value);
+			time = stime = tick = prevTick = 0;
+			speedsTimes = speeds.Select(s =>
+			{
+				GetTimeFromTick(tick = GetTickOfMeasure(s.Measure + 1) + s.Tick, out time, out stime, prevTick, time, stime);
+				prevTick = tick;
+				return new KeyValuePair<SpeedEvent, float>(s, time);
+			}).ToDictionary(k => k.Key, k => k.Value);
+			
 			yield return null;
 
 			var tickOfBeat = 192 / currentChart.Beat.Note;
@@ -397,9 +404,9 @@ namespace Xeltica.BeatBall
 					loadingUI.GetComponent<Image>().color = new Color(0.5f, 0, 0, 0.6f);
 				}
 				else
-			{
-				loadingText.text = $"{loadingLog}\n{loadingProgress}%";
-			}
+				{
+					loadingText.text = $"{loadingLog}\n{loadingProgress}%";
+				}
 			}
 
 			if (isInitialized || isError)
