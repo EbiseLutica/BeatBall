@@ -146,8 +146,12 @@ namespace Xeltica.BeatBall
 			}
 			catch (ChartErrorException ex)
 			{
-				HandleError($"構文エラー {ex.Message} {ex.LineNumber}行目");
+				HandleError($"構文エラー: {ex.Message} {ex.LineNumber}行目");
 				yield break;
+			}
+			catch (Exception other)
+			{
+				HandleError($"不明なエラー: {other.Message}\n");
 			}
 
 			yield return null;
