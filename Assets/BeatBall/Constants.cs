@@ -14,7 +14,7 @@ namespace Xeltica.BeatBall
 		/// <summary>
 		/// BeatBall のバージョンです．
 		/// </summary>
-		public static readonly AppVersion Version = new AppVersion("1.0.0", VersionState.Alpha);
+		public static readonly AppVersion Version = new AppVersion("1.0.1", VersionState.Alpha);
 
 		/// <summary>
 		/// 理論値．
