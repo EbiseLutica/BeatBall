@@ -68,6 +68,27 @@ namespace Xeltica.BeatBall
 
 		private string VersionString => $"{Major}.{Minor}.{Revision}";
 
+		private string ShortVersionString => $"{Major}{Minor}{Revision}";
+
+		public string ToShortString()
+		{
+			switch (State)
+			{
+				case VersionState.PreAlpha:
+					return $"p{PreviewDate.Year.ToString().Remove(0, 2)}{PreviewDate.Month:00}{PreviewDate.Day:00}.{Revision}";
+				case VersionState.Alpha:
+					return "a" + ShortVersionString;
+				case VersionState.Beta:
+					return "b" + ShortVersionString;
+				case VersionState.RC:
+					return "rc" + ShortVersionString;
+				case VersionState.Stable:
+					return ShortVersionString;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(State), "異常なバージョンステートです．");
+			}
+		}
+
 		public override string ToString()
 		{
 			switch (State)
