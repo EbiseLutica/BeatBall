@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 namespace Xeltica.BeatBall
 {
-	static class Constants
+	public static class Constants
 	{
 
 		/// <summary>
@@ -14,7 +14,7 @@ namespace Xeltica.BeatBall
 		/// <summary>
 		/// BeatBall のバージョンです．
 		/// </summary>
-		public static readonly AppVersion Version = new AppVersion("1.0.1", VersionState.Alpha);
+		public static readonly AppVersion Version = new AppVersion("1.1.0", VersionState.Alpha);
 
 		/// <summary>
 		/// 理論値．
@@ -63,7 +63,7 @@ namespace Xeltica.BeatBall
 			Major = int.Parse(m.Groups[1].Value);
 			Minor = int.Parse(m.Groups[2].Value);
 			if (m.Groups[3].Success)
-				Revision = int.Parse(m.Groups[2].Value);
+				Revision = int.Parse(m.Groups[3].Value);
 		}
 
 		private string VersionString => $"{Major}.{Minor}.{Revision}";

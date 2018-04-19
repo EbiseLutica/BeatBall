@@ -67,6 +67,7 @@ namespace Xeltica.BeatBall
 		Dictionary<SpeedEvent, float> speedsTimes;
 		Dictionary<TempoEvent, int> temposTicks;
 		Dictionary<NoteBase, LongNoteMeshModifier> longNoteMeshCaches;
+		Dictionary<NoteBase, float> notesJudgeWaitingTimes;
 		List<TempoEvent> tempos;
 		IEnumerable<BeatEvent> beats;
 		IEnumerable<SpeedEvent> speeds;
@@ -77,7 +78,12 @@ namespace Xeltica.BeatBall
 
 		const ulong mul = 100000000000;
 
-		public double CurrentTime => currentTimeInteger / (double)mul;
+		/// <summary>
+		/// ミスと判定されるまでの遊び時間．
+		/// </summary>
+		const float judgeThreshold = 0.1f;
+
+		public float CurrentTime { get; private set; }
 
 		ulong currentTimeInteger;
 
@@ -97,12 +103,19 @@ namespace Xeltica.BeatBall
 
 		bool isError;
 
+		[SerializeField]
+		Material laneNormal;
+		[SerializeField]
+		Material laneTouched;
 
+		[SerializeField]
+		Renderer[] lanes;
 
 		// Use this for initialization
 		IEnumerator Start()
 		{
 			int count = 0;
+
 
 			loadingLog = "loading.components";
 			aud = GetComponent<AudioSource>();
@@ -391,10 +404,21 @@ namespace Xeltica.BeatBall
 			}
 		}
 
+		private void OnGUI()
+		{
+			GUI.Label(new Rect(8, 100, 3000, 3000), $"<size=20><color={(CurrentTime == aud.time ? "#ff0000" : "#ffffff")}>{CurrentTime:#.0} {aud.time:#.0}</color></size>");
+
+		}
+
 		// Update is called once per frame
 		void FixedUpdate()
 		{
 			ProcessNotes();
+
+			for (int i = 0; i < 4; i++)
+			{
+				lanes[i].material = TouchProvider.Instance.PressCheck(i) == PressInfo.None ? laneNormal : laneTouched;
+			}
 
 			if (loadingUI != null)
 			{
@@ -411,7 +435,7 @@ namespace Xeltica.BeatBall
 
 			if (isInitialized || isError)
 			{
-				if (!Music.IsPlaying && prevPlaying)
+				if (!aud.isPlaying && prevPlaying)
 				{
 					// hack 成績発表実装時に移動させる
 					SceneManager.LoadScene("Title");
@@ -424,7 +448,7 @@ namespace Xeltica.BeatBall
 				}
 			}
 
-			prevPlaying = Music.IsPlaying;
+			prevPlaying = aud.isPlaying;
 		}
 
 		float Distance(float v, float t) => v * t;
@@ -493,10 +517,9 @@ namespace Xeltica.BeatBall
 			noteFlag = NoteFlag.None;
 
 			Beat beat = currentChart.Beat;
-			var speedMul = 1f;
 			var time = GetTimeOfMeasure(beat, currentChart.Bpm);
 
-			var currentTime = CalculateCurrentTime(audioTime);
+			CurrentTime = CalculateCurrentTime(audioTime);
 
 
 			if (metronomeTime.Count > 0 && metronomeTime.Peek() <= audioTime)
@@ -510,6 +533,15 @@ namespace Xeltica.BeatBall
 			
 			foreach (var note in notesDic.ToList())
 			{
+				var noteTime = time + notesTimes[note.Key] - audioTime;
+
+				if (noteTime < -judgeThreshold && note.Value != null)
+				{
+					ScoreSubmit(JudgeState.Bad);
+					Destroy(note.Value.gameObject);
+					continue;
+				}
+
 				if (note.Value == null)
 				{
 					if (note.Key.Type == NoteType.Dribble && longNoteMeshCaches.ContainsKey(note.Key))
@@ -519,7 +551,7 @@ namespace Xeltica.BeatBall
 					continue;
 				}
 				var pos = note.Value.localPosition;
-				note.Value.localPosition = new Vector3(pos.x, pos.y, Distance(hiSpeed, (time + speededNotesTimes[note.Key] - currentTime)));
+				note.Value.localPosition = new Vector3(pos.x, pos.y, Distance(hiSpeed, (time + speededNotesTimes[note.Key] - CurrentTime)));
 
 				if (note.Key.Type == NoteType.Dribble)
 				{
@@ -535,70 +567,152 @@ namespace Xeltica.BeatBall
 					}
 				}
 
-				if (time + notesTimes[note.Key] - audioTime <= 0)
+				if (-judgeThreshold < noteTime && noteTime < judgeThreshold)
 				{
-					Judge(note.Key, note.Value);
+					Judge(note.Key, note.Value, noteTime);
 				}
 			}
 			prevTime = (ulong)(audioTime * mul);
 		}
 
-		void Judge(NoteBase note, Transform tf)
+		JudgeState Calculate(float judgePhase)
 		{
-			//hack ちゃんと判定させる
-			ScoreBoardController.Instance.Great++;
+			var normalizedPhase = Mathf.Abs(judgePhase);
 
+			return normalizedPhase < judgeThreshold * 0.25f ? JudgeState.Great
+				 : normalizedPhase < judgeThreshold * 0.5f ? JudgeState.Good
+										  : JudgeState.Ok;
+		}
+
+		void ScoreSubmit(JudgeState state)
+		{
+			var score = ScoreBoardController.Instance;
+			switch (state)
+			{
+				case JudgeState.Great:
+					score.Great++;
+					break;
+				case JudgeState.Good:
+					score.Good++;
+					break;
+				case JudgeState.Ok:
+					score.Ok++;
+					break;
+				case JudgeState.Bad:
+					score.Bad++;
+					break;
+			}
+		}
+
+		void Judge(NoteBase note, Transform tf, float judgePhase)
+		{
+			var touch = TouchProvider.Instance;
+			var info = touch.PressCheck(note.Lane);
+			var processed = false;
 			switch (note.Type)
 			{
 				case NoteType.Kick:
-					if (!noteFlag.HasFlag(NoteFlag.Kick))
-						NotesFX.Instance.Kick();
+					if (info == PressInfo.Tap)
+					{
+						ScoreSubmit(Calculate(judgePhase));
 
-					noteFlag |= NoteFlag.Kick;
+						processed = true;
+
+						// SFX
+						if (!noteFlag.HasFlag(NoteFlag.Kick))
+							NotesFX.Instance.Kick();
+						
+						noteFlag |= NoteFlag.Kick;
+					}
+
 					break;
 				case NoteType.Dribble:
 					var d = (Dribble)note;
 
 					if (d.IsFirstNote)
+					{
+						if (info == PressInfo.Tap)
+						{
+							ScoreSubmit(Calculate(judgePhase));
+						}
+						processed = true;
+					}
+
+
+					if (d.IsFirstNote && info == PressInfo.Tap)
 						NotesFX.Instance.DribbleStart();
-					if (d.IsLastNote)
+					if (d.IsLastNote && info != PressInfo.None)
 						NotesFX.Instance.DribbleStop();
 
-					if (!noteFlag.HasFlag(NoteFlag.Dribble))
-						NotesFX.Instance.Dribble();
+					if (!d.IsFirstNote && info != PressInfo.None)
+					{
+						ScoreSubmit(JudgeState.Great);
+						processed = true;
+					}
 
-					noteFlag |= NoteFlag.Dribble;
+					if (info != PressInfo.None)
+					{
+						processed = true;
+						if (!noteFlag.HasFlag(NoteFlag.Dribble))
+							NotesFX.Instance.Dribble();
+
+						noteFlag |= NoteFlag.Dribble;
+					}
 					break;
 				case NoteType.Knock:
-					if (!noteFlag.HasFlag(NoteFlag.Knock))
-						NotesFX.Instance.Knock();
+					if (info == PressInfo.Slide)
+					{
+						processed = true;
+						ScoreSubmit(JudgeState.Great);
+						if (!noteFlag.HasFlag(NoteFlag.Knock))
+							NotesFX.Instance.Knock();
 
-					noteFlag |= NoteFlag.Knock;
+						noteFlag |= NoteFlag.Knock;
+					}
+					else if (info == PressInfo.Tap && judgePhase < -judgeThreshold * 0.5f )
+					{
+						ScoreSubmit(JudgeState.Ok);
+						if (!noteFlag.HasFlag(NoteFlag.Knock))
+							NotesFX.Instance.Knock();
+
+						noteFlag |= NoteFlag.Knock;
+					}
+
 					break;
 				case NoteType.Volley:
 					var v = (Volley)note;
 
-					if (v.IsFirstNote && !noteFlag.HasFlag(NoteFlag.Receive))
+					if (info == PressInfo.Tap)
 					{
-						NotesFX.Instance.Receive();
-						noteFlag |= NoteFlag.Receive;
-					}
-					else if (v.IsLastNote && !noteFlag.HasFlag(NoteFlag.Spike))
-					{
-						NotesFX.Instance.Spike();
-						noteFlag |= NoteFlag.Spike;
-					}
-					else if (!noteFlag.HasFlag(NoteFlag.Toss))
-					{
-						NotesFX.Instance.Toss();
-						noteFlag |= NoteFlag.Toss;
+						processed = true;
+						ScoreSubmit(Calculate(judgePhase));
+						if (v.IsFirstNote && !noteFlag.HasFlag(NoteFlag.Receive))
+						{
+							NotesFX.Instance.Receive();
+							noteFlag |= NoteFlag.Receive;
+						}
+						else if (v.IsLastNote && !noteFlag.HasFlag(NoteFlag.Spike))
+						{
+							NotesFX.Instance.Spike();
+							noteFlag |= NoteFlag.Spike;
+						}
+						else if (!noteFlag.HasFlag(NoteFlag.Toss))
+						{
+							NotesFX.Instance.Toss();
+							noteFlag |= NoteFlag.Toss;
+						}
 					}
 					break;
 				case NoteType.Puck:
-					if (!noteFlag.HasFlag(NoteFlag.Puck))
-						NotesFX.Instance.Puck();
+					if (info != PressInfo.None && judgePhase <= 0)
+					{
+						ScoreSubmit(JudgeState.Great);
+						processed = true;
+						if (!noteFlag.HasFlag(NoteFlag.Puck))
+							NotesFX.Instance.Puck();
 
-					noteFlag |= NoteFlag.Puck;
+						noteFlag |= NoteFlag.Puck;
+					}
 					break;
 				case NoteType.Rotate:
 					//todo 回転
@@ -607,8 +721,11 @@ namespace Xeltica.BeatBall
 					//todo 振動
 					break;
 			}
-			notesDic.Remove(note);
-			StartCoroutine(DelayedDestroy(note, tf.gameObject));
+			if (processed)
+			{
+				StartCoroutine(DelayedDestroy(note, notesDic[note].gameObject));
+				notesDic.Remove(note);
+			}
 		}
 
 		IEnumerator DelayedDestroy(NoteBase n, GameObject go)
@@ -648,11 +765,18 @@ namespace Xeltica.BeatBall
 			Puck = 64,
 		}
 
+		enum JudgeState
+		{
+			Great, Good, Ok, Bad
+		}
+
 	}
 
 	public static class StaticData
 	{
 		public static string ChartPath { get; set; }
 		public static float Hispeed { get; set; } = 20;
+		public static bool IsAutoPlay { get; set; }
+		public static float Correction { get; set; } = 0;
 	}
 }
