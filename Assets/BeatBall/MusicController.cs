@@ -634,30 +634,23 @@ namespace Xeltica.BeatBall
 						if (info == PressInfo.Tap)
 						{
 							ScoreSubmit(Calculate(judgePhase));
+							NotesFX.Instance.DribbleStart();
 						}
 						processed = true;
 					}
 
-
-					if (d.IsFirstNote && info == PressInfo.Tap)
-						NotesFX.Instance.DribbleStart();
-					if (d.IsLastNote && info != PressInfo.None)
-						NotesFX.Instance.DribbleStop();
-
-					if (!d.IsFirstNote && info != PressInfo.None)
+					if (info != PressInfo.None && judgePhase <= 0)
 					{
 						ScoreSubmit(JudgeState.Great);
 						processed = true;
-					}
-
-					if (info != PressInfo.None)
-					{
-						processed = true;
+						if (d.IsLastNote)
+							NotesFX.Instance.DribbleStop();
 						if (!noteFlag.HasFlag(NoteFlag.Dribble))
 							NotesFX.Instance.Dribble();
 
 						noteFlag |= NoteFlag.Dribble;
 					}
+
 					break;
 				case NoteType.Knock:
 					if (info == PressInfo.Slide)
