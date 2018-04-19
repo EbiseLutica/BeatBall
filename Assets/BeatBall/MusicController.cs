@@ -81,7 +81,7 @@ namespace Xeltica.BeatBall
 		/// <summary>
 		/// ミスと判定されるまでの遊び時間．
 		/// </summary>
-		const float judgeThreshold = 0.1f;
+		const float judgeThreshold = 0.3f;
 
 		public float CurrentTime { get; private set; }
 
