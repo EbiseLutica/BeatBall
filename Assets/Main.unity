@@ -1094,7 +1094,7 @@ Prefab:
     - target: {fileID: 224815474538416862, guid: 17a385f296085475d86797e3c3ef9bcf,
         type: 2}
       propertyPath: m_SizeDelta.x
-      value: 36
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 224815474538416862, guid: 17a385f296085475d86797e3c3ef9bcf,
         type: 2}
@@ -1164,7 +1164,7 @@ Prefab:
     - target: {fileID: 224970081369500372, guid: 17a385f296085475d86797e3c3ef9bcf,
         type: 2}
       propertyPath: m_SizeDelta.y
-      value: 23.208334
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 114452601064695856, guid: 17a385f296085475d86797e3c3ef9bcf,
         type: 2}
@@ -1194,12 +1194,12 @@ Prefab:
     - target: {fileID: 114452601064695856, guid: 17a385f296085475d86797e3c3ef9bcf,
         type: 2}
       propertyPath: m_FontData.m_FontSize
-      value: 22
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 114452601064695856, guid: 17a385f296085475d86797e3c3ef9bcf,
         type: 2}
       propertyPath: m_FontData.m_Alignment
-      value: 0
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 224970081369500372, guid: 17a385f296085475d86797e3c3ef9bcf,
         type: 2}
@@ -1214,12 +1214,12 @@ Prefab:
     - target: {fileID: 224970081369500372, guid: 17a385f296085475d86797e3c3ef9bcf,
         type: 2}
       propertyPath: m_LocalRotation.z
-      value: 0.13052616
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 224970081369500372, guid: 17a385f296085475d86797e3c3ef9bcf,
         type: 2}
       propertyPath: m_LocalRotation.w
-      value: 0.9914449
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 224970081369500372, guid: 17a385f296085475d86797e3c3ef9bcf,
         type: 2}
@@ -1229,7 +1229,7 @@ Prefab:
     - target: {fileID: 224970081369500372, guid: 17a385f296085475d86797e3c3ef9bcf,
         type: 2}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 15
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 224506524669167408, guid: 17a385f296085475d86797e3c3ef9bcf,
         type: 2}
@@ -1294,7 +1294,61 @@ Prefab:
     - target: {fileID: 114452601064695856, guid: 17a385f296085475d86797e3c3ef9bcf,
         type: 2}
       propertyPath: m_FontData.m_FontStyle
-      value: 1
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224970081369500372, guid: 17a385f296085475d86797e3c3ef9bcf,
+        type: 2}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114339033658398076, guid: 17a385f296085475d86797e3c3ef9bcf,
+        type: 2}
+      propertyPath: m_FontData.m_Font
+      value: 
+      objectReference: {fileID: 12800000, guid: 5df09574b909e413a8e081eb53e0fdfa,
+        type: 3}
+    - target: {fileID: 114452601064695856, guid: 17a385f296085475d86797e3c3ef9bcf,
+        type: 2}
+      propertyPath: m_FontData.m_Font
+      value: 
+      objectReference: {fileID: 12800000, guid: 5df09574b909e413a8e081eb53e0fdfa,
+        type: 3}
+    - target: {fileID: 114788237265418614, guid: 17a385f296085475d86797e3c3ef9bcf,
+        type: 2}
+      propertyPath: m_FontData.m_Font
+      value: 
+      objectReference: {fileID: 12800000, guid: 5df09574b909e413a8e081eb53e0fdfa,
+        type: 3}
+    - target: {fileID: 114788237265418614, guid: 17a385f296085475d86797e3c3ef9bcf,
+        type: 2}
+      propertyPath: m_FontData.m_FontStyle
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114166563485200874, guid: 17a385f296085475d86797e3c3ef9bcf,
+        type: 2}
+      propertyPath: m_FontData.m_FontStyle
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114166563485200874, guid: 17a385f296085475d86797e3c3ef9bcf,
+        type: 2}
+      propertyPath: m_FontData.m_Font
+      value: 
+      objectReference: {fileID: 12800000, guid: 5df09574b909e413a8e081eb53e0fdfa,
+        type: 3}
+    - target: {fileID: 114166563485200874, guid: 17a385f296085475d86797e3c3ef9bcf,
+        type: 2}
+      propertyPath: m_FontData.m_FontSize
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 114952344405373810, guid: 17a385f296085475d86797e3c3ef9bcf,
+        type: 2}
+      propertyPath: m_PreferredWidth
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 114952344405373810, guid: 17a385f296085475d86797e3c3ef9bcf,
+        type: 2}
+      propertyPath: m_PreferredHeight
+      value: 28
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 17a385f296085475d86797e3c3ef9bcf, type: 2}
@@ -1762,8 +1816,8 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 20
+    m_Font: {fileID: 12800000, guid: 5df09574b909e413a8e081eb53e0fdfa, type: 3}
+    m_FontSize: 24
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 0
@@ -1772,7 +1826,7 @@ MonoBehaviour:
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
+    m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: Score
 --- !u!222 &1239399508

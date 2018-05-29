@@ -521,7 +521,6 @@ namespace Xeltica.BeatBall
 
 			CurrentTime = CalculateCurrentTime(audioTime);
 
-
 			if (metronomeTime.Count > 0 && metronomeTime.Peek() <= audioTime)
 			{
 				metronomeTime.Dequeue();
@@ -539,6 +538,7 @@ namespace Xeltica.BeatBall
 				{
 					ScoreSubmit(JudgeState.Bad);
 					Destroy(note.Value.gameObject);
+					notesDic.Remove(note.Key);
 					continue;
 				}
 
@@ -567,7 +567,12 @@ namespace Xeltica.BeatBall
 					}
 				}
 
-				if (-judgeThreshold < noteTime && noteTime < judgeThreshold)
+				if (-judgeThreshold < noteTime && 
+					noteTime < judgeThreshold && 
+					!notesDic
+						.Where(k => k.Key.Lane == note.Key.Lane)
+						.Any(k => notesTimes[k.Key] < notesTimes[note.Key])
+					)
 				{
 					Judge(note.Key, note.Value, noteTime);
 				}
@@ -604,7 +609,7 @@ namespace Xeltica.BeatBall
 			}
 		}
 
-		void Judge(NoteBase note, Transform tf, float judgePhase)
+		bool Judge(NoteBase note, Transform tf, float judgePhase)
 		{
 			var touch = TouchProvider.Instance;
 			var info = touch.PressCheck(note.Lane);
@@ -662,7 +667,7 @@ namespace Xeltica.BeatBall
 
 						noteFlag |= NoteFlag.Knock;
 					}
-					else if (info == PressInfo.Tap && judgePhase < -judgeThreshold * 0.5f )
+					else if (info == PressInfo.Tap && judgePhase < -judgeThreshold * 0.5f)
 					{
 						ScoreSubmit(JudgeState.Ok);
 						if (!noteFlag.HasFlag(NoteFlag.Knock))
@@ -719,6 +724,7 @@ namespace Xeltica.BeatBall
 				StartCoroutine(DelayedDestroy(note, notesDic[note].gameObject));
 				notesDic.Remove(note);
 			}
+			return processed;
 		}
 
 		IEnumerator DelayedDestroy(NoteBase n, GameObject go)
